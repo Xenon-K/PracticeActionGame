@@ -1,4 +1,8 @@
 # PracticeActionGame
+## (12/28/2024) Progress:
+### Added branch attacks, now can customize different combos for different characters. Team system is finally avaliable, switchIn, switchOut logic is fixed. Implemented input buffer for branch attack and branch normal attack for smoother transitions.
+Still need implementation(priority from high to low): Ult close up shot; holding down moves; Bullet system; Enemies; energy and ult calculation system; health & break system; switch in attack; apply all moves to all character in game; stage/victory or loss scene; (if I have enough time and energy for the following (tears)) attack special effects; render
+
 ## (12/26/2024) Progress:
 ### Connecting move sets, worling on the state machine mech, fixed switchIn and switchOut logic and presentation, added switch character cool down
 A known problem is that if switch character too fast, it might shift to a different place(worst if there is an object near by). My guess is that when switch too fast, switchOut animation is not entirely played and gameObject will not be properly turn off causing some variables wrong. But switch character cool down is not smooth for the game play.
