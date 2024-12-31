@@ -24,5 +24,6 @@ Enable Nicole Humanoid Avatar, Attached weapons to the character
 Basic movement update & animation manage & state change for Nicole's game play.
 
 #### Models are getting from 【BiliBili：观海子】
+#### Animations are getting from all over the internet, this is a website I like to use: https://www.aplaybox.com/. But feel free to try others.
 #### Can not use for commercial purposes, only for practice
 #### The final right of interpretation belongs to: miHoYo
