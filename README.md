@@ -1,4 +1,10 @@
 # PracticeActionGame
+## (1/2/2025) Progress:
+### Added Enemy tracking for attacks. Added health and attack for all character and enemies.
+The project is going well, however, I have to pause the project for a while, but this is definitly not the final editing for this project.
+#### first demo video
+https://drive.google.com/file/d/1CZ1ZRrqqQdQ20PY6_k7W-DW-kvVPUykz/view?usp=sharing
+
 ## (12/31/2024) Progress:
 ### Happy New Year!!!
 
