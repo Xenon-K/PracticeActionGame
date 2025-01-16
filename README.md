@@ -1,4 +1,8 @@
 # PracticeActionGame
+## (1/16/2025) Progress:
+### Added Left foot right foot walking/running animation, the character will switch their leg even if the player is not doing a contant walking.
+### Added Evade effect, now the player won't take damage while evade, more effects such as bullet time will be added later.
+
 ## (1/2/2025) Progress:
 ### Added Enemy tracking for attacks. Added health and attack for all character and enemies.
 The project is going well, however, I have to pause the project for a while, but this is definitly not the final editing for this project.
