@@ -2,23 +2,24 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-/// <summary>
-/// ult state
-public class PlayerBigSkillState : PlayerStateBase
+public class PlayerSwitchInAttackExState : PlayerStateBase
 {
     private bool isAttacking = false;
     private bool hitOnce = false;
-
     public override void Enter()
     {
+        playerController.RestoreGlobalTimeScale();
+        playerController.canEx = false;
         base.Enter();
 
-        //switch camera
-        playerModel.bigSkillStartShot.SetActive(false);
-        playerModel.bigSkillShot.SetActive(true);
-
-        //afterswing
-        playerController.PlayAnimation("BigSkill", 0.0f);
+        playerController.PlayAnimation("SwitchIn_Attack_Ex", 0f);
+        // Find the closest enemy within range
+        Transform closestEnemy = playerController.FindClosestEnemy(10f);//same as enemy see range
+        if (closestEnemy != null)
+        {
+            //Debug.Log("See enemy: Branch");
+            playerController.RotateTowards(closestEnemy);
+        }
         // Enable attack collider at the start of the attack
         playerController.EnableAttackCollider();
     }
@@ -31,6 +32,12 @@ public class PlayerBigSkillState : PlayerStateBase
         if (statePlayTime > 0.1f && statePlayTime < 2f)
         {
             isAttacking = true;
+
+            Transform closestEnemy = playerController.FindClosestEnemy(10f);
+            if (closestEnemy != null)
+            {
+                playerController.RotateTowards(closestEnemy);
+            }
         }
 
         if (statePlayTime >= 2f)
@@ -42,8 +49,8 @@ public class PlayerBigSkillState : PlayerStateBase
         #region Whether the animation has finished playing
         if (IsAnimationEnd())
         {
-            //end BigSkill
-            playerController.SwitchState(PlayerState.BigSkillTransition);
+            //back to idle
+            playerController.SwitchState(PlayerState.SwitchInAttackExEnd);
             return;
         }
         #endregion
@@ -70,6 +77,14 @@ public class PlayerBigSkillState : PlayerStateBase
                 enemyStats.TakeDamage(playerController.playerStats.damage.GetValue());
                 enemyStats.TakeResistDamage(playerController.playerStats.resist_damage.GetValue());
                 hitOnce = true;
+                var enemyController = other.GetComponent<EnemyController>();
+                if (enemyController.exChance > 0)
+                {
+                    enemyController.usedExChance();
+                    playerController.canEx = true;
+                    playerController.ApplyGlobalSlowMotion(3f);
+                    playerController.BroadcastCurrentOrder();
+                }
                 Debug.Log("Player hit the enemy!");
             }
 

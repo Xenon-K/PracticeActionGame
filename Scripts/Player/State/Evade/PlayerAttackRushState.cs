@@ -2,41 +2,34 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-/// <summary>
-/// attack state
-/// </summary>
-public class PlayerNormalAttackState : PlayerStateBase
+public class PlayerAttackRushState : PlayerStateBase
 {
     private bool isAttacking = false;
     private bool hitOnce = false;
-    private bool enterNextAttack;
-    //private Transform closestEnemy;
-
     public override void Enter()
     {
         base.Enter();
 
-        playerModel.skiilConfig.HasComboed = false;
-
-        enterNextAttack = false;
+        #region front or back
+        switch (playerModel.currentState)
+        {
+            case PlayerState.AttackRush:
+                playerController.PlayAnimation("Attack_Rush", 0.1f);
+                break;
+            case PlayerState.AttackRushBack:
+                playerController.PlayAnimation("Attack_Rush_Back", 0.1f);
+                break;
+        }
+        #endregion
 
         // Find the closest enemy within range
         Transform closestEnemy = playerController.FindClosestEnemy(10f);//same as enemy see range
         if (closestEnemy != null)
         {
-            //Debug.Log("See enemy: Normal Attack");
+            //Debug.Log("See enemy: AttackRush");
             playerController.RotateTowards(closestEnemy);
         }
 
-        //play attack animation
-        if (playerModel.skiilConfig.isPerfect)
-        {
-            playerController.PlayAnimation($"Attack_Normal_{playerModel.skiilConfig.currentNormalAttackIndex}_Perfect", 0.1f);
-        }
-        else
-        {
-            playerController.PlayAnimation("Attack_Normal_" + playerModel.skiilConfig.currentNormalAttackIndex, 0.1f);
-        }
         // Enable attack collider at the start of the attack
         playerController.EnableAttackCollider();
     }
@@ -63,49 +56,23 @@ public class PlayerNormalAttackState : PlayerStateBase
         }
         #endregion
 
-        #region detect ult
+        #region detect ult state
         if (playerController.inputSystem.Player.BigSkill.triggered)
         {
-            //cancel perfect combo
-            playerModel.skiilConfig.isPerfect = false;
-            // reset combo
-            playerModel.skiilConfig.currentNormalAttackIndex = 1;
             //ult state
             playerController.SwitchState(PlayerState.BigSkillStart);
             return;
         }
         #endregion
 
-        // detect combo
-        if (NormalizedTime() >= 0.5f && playerController.inputSystem.Player.Fire.triggered) 
-        {
-            enterNextAttack = true;
-        }
-
         #region Whether the animation has finished playing
         if (IsAnimationEnd())
         {
-            if (enterNextAttack)
-            {
-                // next attack 
-                //Accumulate attack combos
-                playerModel.skiilConfig.currentNormalAttackIndex++;
-                if (playerModel.skiilConfig.currentNormalAttackIndex > playerModel.skiilConfig.normalAttackDamageMultiple.Length)
-                {
-                    // reset combo
-                    playerModel.skiilConfig.currentNormalAttackIndex = 1;
-                }
-
-                //normal sttack state
-                playerController.SwitchState(PlayerState.NormalAttack);
-                return;
-            }
+            //fight back state
+            if (playerModel.currentState == PlayerState.AttackRush)
+                playerController.SwitchState(PlayerState.AttackRushEnd);
             else
-            {
-                //afterswing for this combo
-                playerController.SwitchState(PlayerState.NormalAttackEnd);
-                return;
-            }
+                playerController.SwitchState(PlayerState.AttackRushBackEnd);
         }
         #endregion
     }
@@ -116,14 +83,14 @@ public class PlayerNormalAttackState : PlayerStateBase
     {
         //Debug.Log($"OnAttackHit triggered with {other.name} tagged as {other.tag}");
         //if (!isAttacking)
-            //Debug.Log("is not attacking");
+        //Debug.Log("is not attacking");
         //if (hitOnce)
-            //Debug.Log("hit");
+        //Debug.Log("hit");
         //if (!other.CompareTag("Enemy"))
-            //Debug.Log("not tag");
+        //Debug.Log("not tag");
         if (isAttacking && !hitOnce && other.CompareTag("Enemy"))
         {
-            //Debug.Log("Feel Enemy");
+            Debug.Log("Feel Enemy");
             // Detect if the enemy hit the player
             var enemyStats = other.GetComponent<CharacterStats>();
             if (enemyStats != null)
@@ -131,18 +98,6 @@ public class PlayerNormalAttackState : PlayerStateBase
                 enemyStats.TakeDamage(playerController.playerStats.damage.GetValue());
                 enemyStats.TakeResistDamage(playerController.playerStats.resist_damage.GetValue());
                 hitOnce = true;
-                //if it is a perfect branch attack or it is the last normal attack stage
-                if (playerModel.skiilConfig.isPerfect || playerModel.skiilConfig.currentNormalAttackIndex == playerModel.skiilConfig.normalAttackDamageMultiple.Length)
-                {
-                    var enemyController = other.GetComponent<EnemyController>();
-                    if (enemyController.exChance > 0)
-                    {
-                        enemyController.usedExChance();
-                        playerController.canEx = true;
-                        playerController.ApplyGlobalSlowMotion(3f);
-                        playerController.BroadcastCurrentOrder();
-                    }
-                }
                 Debug.Log("Player hit the enemy!");
             }
 

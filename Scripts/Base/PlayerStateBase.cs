@@ -6,11 +6,12 @@ public enum PlayerState
 {
     Idle, Idle_AFK,
     Walk, Run, RunEnd, TurnBack,
-    Evade_Front, Evade_Back, Evade_Front_End, Evade_Back_End,
+    Evade_Front, Evade_Back, Evade_Front_End, Evade_Back_End,AttackRush,AttackRushEnd,AttackRushBack, AttackRushBackEnd,
     NormalAttack, NormalAttackEnd,
     BigSkillStart, BigSkill, BigSkillTransition, BigSkillEnd,
-    SwitchInNormal, Attack_Branch, Attack_Branch_End,Attack_Branch_Loop,Attack_Branch_Walk, Attack_Branch_Explode,
-    Death,
+    SwitchInNormal, SwitchInAttack, SwitchInAttackEnd, SwitchInAttackEx, SwitchInAttackExEnd,
+    Attack_Branch, Attack_Branch_End,Attack_Branch_Loop,Attack_Branch_Walk, Attack_Branch_Explode,
+    Death,Hit,
 }
 public class PlayerStateBase : StateBase
 {
@@ -63,16 +64,48 @@ public class PlayerStateBase : StateBase
         statePlayTime += Time.deltaTime;
 
         #region Detecting character switching
-        if (playerController.inputSystem.Player.SwitchDown.triggered &&
+        if (playerController.inputSystem.Player.Fire.triggered &&
+            playerModel.currentState != PlayerState.BigSkillStart &&
+            playerModel.currentState != PlayerState.BigSkill &&
+            playerController.canEx == true)
+        {
+            //character switch
+            playerController.SwitchNextExModel();
+        }
+        else if (playerController.inputSystem.Player.SwitchDown.triggered &&
+            playerModel.currentState != PlayerState.BigSkillStart &&
+            playerModel.currentState != PlayerState.BigSkill && 
+            playerModel.currentState == PlayerState.Hit)
+        {
+            //character switch
+            playerController.SwitchNextSupportModel();
+        }
+        else if (playerController.inputSystem.Player.SwitchDown.triggered &&
             playerModel.currentState!= PlayerState.BigSkillStart&&
             playerModel.currentState != PlayerState.BigSkill)
         {
             //character switch
             playerController.SwitchNextModel();
         }
-        if (playerController.inputSystem.Player.SwitchUp.triggered &&
+        if (playerController.inputSystem.Player.SwitchLast.triggered &&
+            playerModel.currentState != PlayerState.BigSkillStart &&
+            playerModel.currentState != PlayerState.BigSkill &&
+            playerController.canEx == true)
+        {
+            //character switch
+            playerController.SwitchLastExModel();
+        }
+        else if (playerController.inputSystem.Player.SwitchUp.triggered &&
         playerModel.currentState != PlayerState.BigSkillStart &&
         playerModel.currentState != PlayerState.BigSkill)
+        {
+            //character switch
+            playerController.SwitchLastSupportModel();
+        }
+        else if (playerController.inputSystem.Player.SwitchUp.triggered &&
+        playerModel.currentState != PlayerState.BigSkillStart &&
+        playerModel.currentState != PlayerState.BigSkill &&
+            playerModel.currentState == PlayerState.Hit)
         {
             //character switch
             playerController.SwitchLastModel();
@@ -99,5 +132,12 @@ public class PlayerStateBase : StateBase
         stateInfo = playerModel.animator.GetCurrentAnimatorStateInfo(0);
 
         return stateInfo.normalizedTime;
+    }
+
+    /// <summary>
+    /// Reset stateTimer
+    public void ResetTimer()
+    {
+        statePlayTime = 0;
     }
 }

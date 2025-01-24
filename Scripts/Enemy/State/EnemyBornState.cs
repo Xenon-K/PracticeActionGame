@@ -15,6 +15,21 @@ public class EnemyBornState : EnemyStateBase
     {
         base.Update();
 
+        if (enemyController == null)
+        {
+            Debug.LogError("enemyController is null in EnemyBornState.Enter()");
+            return;
+        }
+
+        #region detect stun
+        if (enemyController.enemyStats.currentResist <= 0)
+        {
+            // Transition to the Death state
+            enemyController.SwitchState(EnemyState.Stun_Start);
+            return;
+        }
+        #endregion
+
         #region detect health
         if (enemyController.enemyStats.currentHealth <= 0)
         {

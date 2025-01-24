@@ -8,7 +8,10 @@ public enum EnemyState
     Idle,
     Walk,
     NormalAttack,
-    Death
+    Death,
+    Stun_Start,
+    Stun_Loop,
+    Stun_End
 }
 public class EnemyStateBase : StateBase
 {
@@ -66,6 +69,21 @@ public class EnemyStateBase : StateBase
 
         return stateInfo.normalizedTime >= 1.0f && !enemyModel.animator.IsInTransition(0);
     }
+
+    /// <summary>
+    /// Determine whether the animation is finished, check for same animation name version, made for stun end
+    public bool IsAnimationEnd(string animationName)
+    {
+        // Refresh animation status
+        stateInfo = enemyModel.animator.GetCurrentAnimatorStateInfo(0);
+
+        // Check if the current animation matches
+        if (!stateInfo.IsName(animationName))
+            return false;
+
+        return stateInfo.normalizedTime >= 1.0f && !enemyModel.animator.IsInTransition(0);
+    }
+
 
     /// <summary>
     /// Get animation progress

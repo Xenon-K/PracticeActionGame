@@ -35,11 +35,30 @@ public class PlayerEvadeEndState : PlayerStateBase
         }
         #endregion
 
+        #region detect fightBackTime
+        if (playerModel.fightBack == true && statePlayTime > 0.5f)
+        {
+            playerModel.fightBack = false;
+        }
+        #endregion
+
         #region detect attack
         if (playerController.inputSystem.Player.Fire.triggered)
         {
-            //attack state
-            playerController.SwitchState(PlayerState.NormalAttack);
+            if (playerModel.fightBack == true)
+            {
+                //fight back state
+                if (playerModel.currentState == PlayerState.Evade_Front_End)
+                    playerController.SwitchState(PlayerState.AttackRush);
+                else
+                    playerController.SwitchState(PlayerState.AttackRushBack);
+                playerModel.fightBack = false;
+            }
+            else
+            {
+                //attack state
+                playerController.SwitchState(PlayerState.NormalAttack);
+            }
             return;
         }
         #endregion

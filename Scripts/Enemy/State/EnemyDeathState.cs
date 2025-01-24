@@ -20,7 +20,8 @@ public class EnemyDeathState : EnemyStateBase
         if (IsAnimationEnd())
         {
             //end scene
-            GameObject.Destroy(enemyController.gameObject);
+            //GameObject.Destroy(enemyController.gameObject);
+            enemyController.gameObject.SetActive(false);
             return;
         }
 

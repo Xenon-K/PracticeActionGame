@@ -11,6 +11,15 @@ public class PlayerRunState : PlayerStateBase
 
     public override void Enter()
     {
+        #region detect hit
+        if (playerModel.currentState == PlayerState.Hit)
+        {
+            //cancel looping state
+            playerController.SwitchState(PlayerState.Hit);
+            return;
+        }
+        #endregion
+
         base.Enter();
 
         mainCamera = Camera.main;
@@ -53,6 +62,15 @@ public class PlayerRunState : PlayerStateBase
     public override void Update()
     {
         base.Update();
+
+        #region detect hit
+        if (playerModel.currentState == PlayerState.Hit)
+        {
+            //cancel looping state
+            playerController.SwitchState(PlayerState.Hit);
+            return;
+        }
+        #endregion
 
         #region detect run for sure
         if (statePlayTime > 0.5f)

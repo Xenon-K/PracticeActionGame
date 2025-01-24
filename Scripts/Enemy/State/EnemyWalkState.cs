@@ -16,6 +16,15 @@ public class EnemyWalkState : EnemyStateBase
     {
         base.Update();
 
+        #region detect stun
+        if (enemyController.enemyStats.currentResist <= 0)
+        {
+            // Transition to the Death state
+            enemyController.SwitchState(EnemyState.Stun_Start);
+            return;
+        }
+        #endregion
+
         #region detect health
         if (enemyController.enemyStats.currentHealth <= 0)
         {
@@ -39,7 +48,7 @@ public class EnemyWalkState : EnemyStateBase
                 // Move towards the target
                 enemyController.Agent.SetDestination(target.position);
             }
-            else if (distance <= enemyController.lookRadius && distance <= enemyController.Agent.stoppingDistance)
+            else if ((distance <= enemyController.lookRadius && distance <= enemyController.Agent.stoppingDistance) || enemyController.Agent.velocity.sqrMagnitude <= 0.01f)
             {
                 // Close enough to stop moving
                 enemyController.Agent.ResetPath(); // Stop movement

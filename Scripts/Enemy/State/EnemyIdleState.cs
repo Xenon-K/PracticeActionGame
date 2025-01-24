@@ -37,6 +37,15 @@ public class EnemyIdleState : EnemyStateBase
         }
         #endregion
 
+        #region detect stun
+        if (enemyController.enemyStats.currentResist <= 0)
+        {
+            // Transition to the Stun state
+            enemyController.SwitchState(EnemyState.Stun_Start);
+            return;
+        }
+        #endregion
+
         #region detect health
         if (enemyController.enemyStats.currentHealth <= 0)
         {

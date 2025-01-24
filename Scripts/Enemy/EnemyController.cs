@@ -21,10 +21,10 @@ public class EnemyController : SingleMomoBase<EnemyController>, IStateMachineOwn
     public NavMeshAgent Agent => agent; // Expose agent as a public property
 
     Animator animator;
-    [HideInInspector] public CharacterStats playerStats; // Reference to the player's stats
-    [HideInInspector] public CharacterStats enemyStats; // Reference to the enemy's stats
-    [HideInInspector] public PlayerController playerController;
-    [HideInInspector] public PlayerModel targetPlayerModel;
+    public CharacterStats playerStats; // Reference to the player's stats
+    public CharacterStats enemyStats; // Reference to the enemy's stats
+    public PlayerController playerController;
+    public PlayerModel targetPlayerModel;
 
     [SerializeField] private Collider attackCollider; // Reference to the attack collider
 
@@ -34,6 +34,12 @@ public class EnemyController : SingleMomoBase<EnemyController>, IStateMachineOwn
     //player model
     public EnemyModel enemyModel;
 
+    private float originalAgentSpeed; // Store original NavMeshAgent speed
+    private float originalAnimatorSpeed; // Store original animator speed
+
+    public int exChance = 0;//the chances of player can perform ex attack on this enemy
+    public float exTimer = 0f;//ex attack timer
+
     protected override void Awake()
     {
         base.Awake();
@@ -41,13 +47,27 @@ public class EnemyController : SingleMomoBase<EnemyController>, IStateMachineOwn
         stateMachine = new StateMachine(this);
 
         enemyStats = GetComponent<CharacterStats>();
-        
+
+        #region debug find player info section
+        if (PlayerManager.instance == null)
+            Debug.Log("PlayerManager.instance");
+        if (PlayerManager.instance.player == null)
+            Debug.Log("PlayerManager.instance.player");
+        if (PlayerManager.instance.player.transform == null)
+            Debug.Log("PlayerManager.instance.player.transform");
+        #endregion
+
         target = PlayerManager.instance.player.transform;
         agent = GetComponent<NavMeshAgent>();
-        agent.speed = 5;
+        agent.speed = 8;
+        agent.stoppingDistance = 2;
         animator = GetComponent<Animator>();
         playerController = FindObjectOfType<PlayerController>();
 
+        originalAgentSpeed = agent.speed;
+        originalAnimatorSpeed = animator.speed;
+
+        #region debug get player info section
         if (playerController != null)
         {
             playerModels = playerController.ControllableModels;
@@ -57,6 +77,8 @@ public class EnemyController : SingleMomoBase<EnemyController>, IStateMachineOwn
         {
             Debug.LogError("EnemyController: Could not find PlayerController!");
         }
+        #endregion
+
         if (attackCollider != null)
         {
             attackCollider.enabled = false; // Ensure it's initially disabled
@@ -92,8 +114,18 @@ public class EnemyController : SingleMomoBase<EnemyController>, IStateMachineOwn
             case EnemyState.Death:
                 stateMachine.EnterState<EnemyDeathState>();
                 break;
+            case EnemyState.Stun_Start:
+                stateMachine.EnterState<EnemyStunStartState>();
+                break;
+            case EnemyState.Stun_Loop:
+                stateMachine.EnterState<EnemyStunState>();
+                break;
+            case EnemyState.Stun_End:
+                stateMachine.EnterState<EnemyStunEndState>();
+                break;
         }
     }
+
 
 
     private void OnTriggerStay(Collider other)
@@ -145,9 +177,21 @@ public class EnemyController : SingleMomoBase<EnemyController>, IStateMachineOwn
         if (playerModels != null && currentModelIndex >= 0 && currentModelIndex < playerModels.Count)
         {
             targetPlayerModel = playerModels[currentModelIndex];
+            target = targetPlayerModel.transform;
+            agent.SetDestination(target.position); // Ensure the agent is using the correct target
+        }
+
+        if (exChance > 0 && exTimer < 5f) //start the cooldown no matter which evade number is this
+        {
+            exTimer += Time.deltaTime;
+            if (exTimer >= 5f)
+            {
+                restoreExChance();
+            }
         }
 
         playerStats = targetPlayerModel.GetComponent<CharacterStats>();
+        Debug.Log($"EnemyController: Current target is {target?.name}, Position: {target?.position}");
     }
 
     void FaceTarget()
@@ -180,5 +224,48 @@ public class EnemyController : SingleMomoBase<EnemyController>, IStateMachineOwn
         {
             attackCollider.enabled = false;
         }
+    }
+
+    /// <summary>
+    /// Adjust the enemy's speed and animation speed for slow motion.
+    /// <param name="timeScale">The time scale to apply (e.g., 0.5 for half speed).</param>
+    public void SetTimeScale(float timeScale)
+    {
+        agent.speed = originalAgentSpeed * timeScale;
+        animator.speed = originalAnimatorSpeed * timeScale;
+
+        //Debug.Log($"EnemyController: Slow motion applied with time scale {timeScale}");
+    }
+
+    /// <summary>
+    /// Apply slow motion to the enemy for a specified duration.
+    /// <param name="duration">Duration of the slow motion effect in seconds.</param>
+    public void ApplySlowMotion(float duration)
+    {
+        StartCoroutine(SlowMotionCoroutine(duration));
+    }
+
+    private IEnumerator SlowMotionCoroutine(float duration)
+    {
+        SetTimeScale(0.5f); // Slow down by 50%
+        yield return new WaitForSecondsRealtime(duration);
+        SetTimeScale(1f); // Reset to normal speed
+    }
+
+    public void PlayerExChance()
+    {
+        exChance = 3;//three chances
+    }
+
+    public void usedExChance()
+    {
+        exChance--;//using one chance
+        exTimer = 0f;
+    }
+
+    public void restoreExChance()
+    {
+        exTimer = 0f;
+        exChance = 0;
     }
 }

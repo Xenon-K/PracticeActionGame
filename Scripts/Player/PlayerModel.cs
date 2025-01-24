@@ -31,6 +31,8 @@ public class PlayerModel : MonoBehaviour
     private bool isExiting = false;
     // check for exit position logic
     private bool isAttack = false;
+    //can attackRush
+    public bool fightBack = false;
 
     private void Awake()
     {
@@ -152,7 +154,15 @@ public class PlayerModel : MonoBehaviour
     private bool IsCurrentActionComplete()
     {
         // Do not want to make all actions stay, such as run
-        if ((currentState == PlayerState.NormalAttack || currentState == PlayerState.Attack_Branch || currentState == PlayerState.Attack_Branch_Walk || currentState == PlayerState.Attack_Branch_Loop) && !IsAnimationEnd())
+        if ((currentState == PlayerState.NormalAttack || 
+            currentState == PlayerState.Attack_Branch || 
+            currentState == PlayerState.Attack_Branch_Walk || 
+            currentState == PlayerState.Attack_Branch_Loop || 
+            currentState == PlayerState.AttackRush || 
+            currentState == PlayerState.AttackRushBack ||
+            currentState == PlayerState.SwitchInAttack ||
+            currentState == PlayerState.SwitchInAttackEx ||
+            currentState == PlayerState.Hit) && !IsAnimationEnd())
         {
             isAttack = true;
             return false; // Action not yet complete
@@ -206,6 +216,12 @@ public class PlayerModel : MonoBehaviour
     {
         //Reset normal attack index
         skiilConfig.currentNormalAttackIndex = 1;
+    }
+
+    public void TriggerHitAnimation()
+    {
+        //Debug.Log("Hit animation called");
+        currentState = PlayerState.Hit;
     }
     #endregion
 }
