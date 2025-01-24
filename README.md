@@ -1,4 +1,10 @@
 # PracticeActionGame
+## (1/23/2025) Progress: milestone alpha test battle system complete
+### Added quick assist, chain attack, evade&fight back, hit animation, fixed collision problem, Enemy break system, Enmy stun stages. Milestone 1 is complete
+### Next step: UI and level design
+Milestonr video:
+https://drive.google.com/file/d/1BOA71HISwNbI_NdMSKPOzbHr8vih84O-/view?usp=sharing
+
 ## (1/16/2025) Progress:
 ### Added Left foot right foot walking/running animation, the character will switch their leg even if the player is not doing a contant walking.
 ### Added Evade effect, now the player won't take damage while evade, more effects such as bullet time will be added later.
@@ -18,7 +24,7 @@ Most of the time I spend in the last two days are dealing with the problem gener
 
 ## (12/28/2024) Progress:
 ### Added branch attacks, now can customize different combos for different characters. Team system is finally avaliable, switchIn, switchOut logic is fixed. Implemented input buffer for branch attack and branch normal attack for smoother transitions.
-Still need implementation(priority from high to low): Ult close up shot(done); holding down moves(done); Bullet system; Enemy(done); energy and ult calculation system; health & break system; switch in attack; apply all moves to all character in game; stage/victory or loss scene; (if I have enough time and energy for the following (tears)) attack special effects; render
+Still need implementation(priority from high to low): Ult close up shot(done); holding down moves(done); Bullet system; Enemy(done); energy and ult calculation system; health & break system(done); switch in attack(done); apply all moves to all character in game(done); stage/victory or loss scene; (if I have enough time and energy for the following (tears)) attack special effects; render
 
 ## (12/26/2024) Progress:
 ### Connecting move sets, working on the state machine mech, fixed switchIn and switchOut logic and presentation, added switch character cool down
