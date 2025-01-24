@@ -2,7 +2,7 @@
 ## (1/23/2025) Progress: milestone alpha test battle system complete
 ### Added quick assist, chain attack, evade&fight back, hit animation, fixed collision problem, Enemy break system, Enmy stun stages. Milestone 1 is complete
 ### Next step: UI and level design
-Milestonr video:
+Milestone video:
 https://drive.google.com/file/d/1Yks92x1yNDO4xYVgBhUySJE_BEtRTHk6/view?usp=sharing
 
 ## (1/16/2025) Progress:
