@@ -3,7 +3,7 @@
 ### Added quick assist, chain attack, evade&fight back, hit animation, fixed collision problem, Enemy break system, Enmy stun stages. Milestone 1 is complete
 ### Next step: UI and level design
 Milestonr video:
-https://drive.google.com/file/d/1BOA71HISwNbI_NdMSKPOzbHr8vih84O-/view?usp=sharing
+https://drive.google.com/file/d/1Yks92x1yNDO4xYVgBhUySJE_BEtRTHk6/view?usp=sharing
 
 ## (1/16/2025) Progress:
 ### Added Left foot right foot walking/running animation, the character will switch their leg even if the player is not doing a contant walking.
