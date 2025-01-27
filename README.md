@@ -2,7 +2,7 @@
 ## (1/26/2025 Again) Progress: The practice game is officially complete
 ### UI system added ultimate charge display and ultimate mode. Skill now add more moves for enegy cost version. Ultimate & Skill logic updated. Adding Enter Quest Camera shots. Added background music component. Level Selection UI is now moving instead of still.
 Final video:
-still editing, place reserve.
+https://drive.google.com/file/d/1yZVeE0uUKB52cUMcrlI2f3eHM45TXP9k/view?usp=sharing
 
 
 ## (1/26/2025) Progress: UI system is done, multi level system is done, Nicole's attack set(shot a field that does constant damage) is complete.
