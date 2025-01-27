@@ -1,7 +1,13 @@
 # PracticeActionGame
+## (1/26/2025 Again) Progress: The practice game is officially complete
+### UI system added ultimate charge display and ultimate mode. Skill now add more moves for enegy cost version. Ultimate & Skill logic updated. Adding Enter Quest Camera shots. Added background music component. Level Selection UI is now moving instead of still.
+Final video:
+still editing, place reserve.
+
+
 ## (1/26/2025) Progress: UI system is done, multi level system is done, Nicole's attack set(shot a field that does constant damage) is complete.
 ### Added chain attack direction ui; fixed evade&fight back issue, making it easier to trigger; multiple enemy is now supported; fixed sometimes the third character will not initialize issue.
-### Enter animation
+### Enter animation(Done)
 
 ## (1/23/2025) Progress: milestone alpha test battle system complete
 ### Added quick assist, chain attack, evade&fight back, hit animation, fixed collision problem, Enemy break system, Enmy stun stages. Milestone 1 is complete
@@ -28,7 +34,7 @@ Most of the time I spend in the last two days are dealing with the problem gener
 
 ## (12/28/2024) Progress:
 ### Added branch attacks, now can customize different combos for different characters. Team system is finally avaliable, switchIn, switchOut logic is fixed. Implemented input buffer for branch attack and branch normal attack for smoother transitions.
-Still need implementation(priority from high to low): Ult close up shot(done); holding down moves(done); Bullet system; Enemy(done); energy and ult calculation system; health & break system(done); switch in attack(done); apply all moves to all character in game(done); stage(done)/victory or loss scene(Skip, can not find satisfying art to support this scene, and replaced by switch back to the menu); (if I have enough time and energy for the following (tears)) attack special effects; render
+Still need implementation(priority from high to low): Ult close up shot(done); holding down moves(done); Bullet system(done); Enemy(done); energy and ult calculation system(done); health & break system(done); switch in attack(done); apply all moves to all character in game(done); stage(done)/victory or loss scene(Skip, can not find satisfying art to support this scene, and replaced by switch back to the menu); (if I have enough time and energy for the following (tears)) attack special effects; render
 
 ## (12/26/2024) Progress:
 ### Connecting move sets, working on the state machine mech, fixed switchIn and switchOut logic and presentation, added switch character cool down
