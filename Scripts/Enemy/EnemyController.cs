@@ -5,7 +5,7 @@ using System.Collections.Specialized;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class EnemyController : SingleMomoBase<EnemyController>, IStateMachineOwner
+public class EnemyController : SingleMonoBaseEnemy<EnemyController>, IStateMachineOwner
 {
     //search radius
     public float lookRadius = 10f;
@@ -88,8 +88,23 @@ public class EnemyController : SingleMomoBase<EnemyController>, IStateMachineOwn
     // Start is called before the first frame update
     private void Start()
     {
-        //switch to Idle
-        SwitchState(EnemyState.Born);
+        SwitchState(EnemyState.Born); // Switch to the Born state
+        ApplyFreeze(9f);
+    }
+
+    /// <summary>
+    /// Apply freeze motion to the enemy for a specified duration.
+    /// <param name="duration">Duration of the freeze effect in seconds.</param>
+    public void ApplyFreeze(float duration)
+    {
+        StartCoroutine(FreezeCoroutine(duration));
+    }
+
+    private IEnumerator FreezeCoroutine(float duration)
+    {
+        SetTimeScale(0f); // Freeze
+        yield return new WaitForSecondsRealtime(duration);
+        SetTimeScale(1f); // Reset to normal speed
     }
 
     /// <summary>
@@ -167,12 +182,41 @@ public class EnemyController : SingleMomoBase<EnemyController>, IStateMachineOwn
     // Update is called once per frame
     void Update()
     {
+        /*
+        // Ensure PlayerManager is initialized
+        if (target == null && PlayerManager.instance?.player?.transform != null)
+        {
+            target = PlayerManager.instance.player.transform;
+            Debug.Log("EnemyController: Target successfully assigned during runtime.");
+        }*/
 
         //if the list is empty
         if (playerModels == null || playerModels.Count == 0) return;
 
         // Get the current target based on currentModelIndex
         int currentModelIndex = playerController.CurrentModelIndex;
+
+        // Calculate the distance to the target
+        float distanceToTarget = Vector3.Distance(transform.position, target.position);
+
+        // Check if the target is within the lookRadius
+        if (distanceToTarget > lookRadius || 
+            enemyModel.currentState == EnemyState.Born || //born state, enemy don't move
+            enemyModel.currentState == EnemyState.NormalAttack || //Attack state
+            enemyModel.currentState == EnemyState.Death || //got defeated
+            enemyModel.currentState == EnemyState.Stun_Start || //all stun stages
+            enemyModel.currentState == EnemyState.Stun_Loop ||
+            enemyModel.currentState == EnemyState.Stun_End
+            )
+        {
+            StopAgentMovement();
+            return; // Exit the update method to prevent further processing
+        }
+        else
+        {
+            ResumeAgentMovement();
+            agent.SetDestination(target.position); // Ensure the agent moves toward the target
+        }
 
         if (playerModels != null && currentModelIndex >= 0 && currentModelIndex < playerModels.Count)
         {
@@ -191,7 +235,7 @@ public class EnemyController : SingleMomoBase<EnemyController>, IStateMachineOwn
         }
 
         playerStats = targetPlayerModel.GetComponent<CharacterStats>();
-        Debug.Log($"EnemyController: Current target is {target?.name}, Position: {target?.position}");
+        //Debug.Log($"EnemyController: Current target is {target?.name}, Position: {target?.position}");
     }
 
     void FaceTarget()
@@ -207,6 +251,24 @@ public class EnemyController : SingleMomoBase<EnemyController>, IStateMachineOwn
         Gizmos.DrawWireSphere(transform.position, lookRadius);
     }
 
+    //stop enemy ai
+    public void StopAgentMovement()
+    {
+        if (agent != null)
+        {
+            agent.isStopped = true; // Prevent the agent from moving
+            agent.velocity = Vector3.zero; // Reset its velocity
+        }
+    }
+
+    //resume enemy ai
+    public void ResumeAgentMovement()
+    {
+        if (agent != null)
+        {
+            agent.isStopped = false; // Allow the agent to move again
+        }
+    }
 
     // Enable attack collider (called by animation event)
     public void EnableAttackCollider()

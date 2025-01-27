@@ -51,15 +51,26 @@ public class EnemyWalkState : EnemyStateBase
             else if ((distance <= enemyController.lookRadius && distance <= enemyController.Agent.stoppingDistance) || enemyController.Agent.velocity.sqrMagnitude <= 0.01f)
             {
                 // Close enough to stop moving
-                enemyController.Agent.ResetPath(); // Stop movement
-                enemyController.SwitchState(EnemyState.NormalAttack); // Switch to attack state when reaching the target
+
+                // Check if the enemy is facing the target
+                if (IsFacingTarget(target))
+                {
+                    enemyController.Agent.ResetPath(); // Stop movement
+                    // Switch to attack state when reaching the target and facing them
+                    enemyController.SwitchState(EnemyState.NormalAttack);
+                    return;
+                }
+                else
+                {
+                    // Rotate to face the target
+                    FaceTarget(target);
+                }
             }
             else if(distance > enemyController.lookRadius)
             {
                 //too far
                 enemyController.Agent.ResetPath(); // Stop movement
                 enemyController.SwitchState(EnemyState.Idle); // Switch to idle state when reaching the target
-
             }
         }
         #endregion
@@ -72,5 +83,27 @@ public class EnemyWalkState : EnemyStateBase
         base.Exit();
 
         enemyController.Agent.ResetPath(); // Stop movement
+    }
+
+    /// <summary>
+    /// Check if the enemy is facing the target within a certain angle
+    private bool IsFacingTarget(Transform target)
+    {
+        Vector3 directionToTarget = (target.position - enemyController.transform.position).normalized;
+        float dotProduct = Vector3.Dot(enemyController.transform.forward, directionToTarget);
+
+        // Check if the target is within a 90-degree cone in front of the enemy
+        return dotProduct > 0.5f; // Adjust the threshold as needed (e.g., 0.7f for a narrower angle)
+    }
+
+    private void FaceTarget(Transform target)
+    {
+        Vector3 direction = (target.position - enemyController.transform.position).normalized;
+        Quaternion lookRotation = Quaternion.LookRotation(new Vector3(direction.x, 0, direction.z)); // Ignore vertical axis
+        enemyController.transform.rotation = Quaternion.Slerp(
+            enemyController.transform.rotation,
+            lookRotation,
+            Time.deltaTime * 0.7f // Adjust rotation speed as needed
+        );
     }
 }

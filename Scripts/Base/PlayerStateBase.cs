@@ -10,8 +10,8 @@ public enum PlayerState
     NormalAttack, NormalAttackEnd,
     BigSkillStart, BigSkill, BigSkillTransition, BigSkillEnd,
     SwitchInNormal, SwitchInAttack, SwitchInAttackEnd, SwitchInAttackEx, SwitchInAttackExEnd,
-    Attack_Branch, Attack_Branch_End,Attack_Branch_Loop,Attack_Branch_Walk, Attack_Branch_Explode,
-    Death,Hit,
+    Attack_Branch, Attack_Branch_End, Attack_Branch_Perfect_End, Attack_Branch_Walk, Attack_Branch_Loop, Attack_Branch_Explode,
+    Death,Hit,QuestStart
 }
 public class PlayerStateBase : StateBase
 {
@@ -67,6 +67,7 @@ public class PlayerStateBase : StateBase
         if (playerController.inputSystem.Player.Fire.triggered &&
             playerModel.currentState != PlayerState.BigSkillStart &&
             playerModel.currentState != PlayerState.BigSkill &&
+            playerModel.currentState != PlayerState.QuestStart &&
             playerController.canEx == true)
         {
             //character switch
@@ -74,13 +75,15 @@ public class PlayerStateBase : StateBase
         }
         else if (playerController.inputSystem.Player.SwitchDown.triggered &&
             playerModel.currentState != PlayerState.BigSkillStart &&
-            playerModel.currentState != PlayerState.BigSkill && 
+            playerModel.currentState != PlayerState.BigSkill &&
+            playerModel.currentState != PlayerState.QuestStart &&
             playerModel.currentState == PlayerState.Hit)
         {
             //character switch
             playerController.SwitchNextSupportModel();
         }
         else if (playerController.inputSystem.Player.SwitchDown.triggered &&
+            playerModel.currentState != PlayerState.QuestStart &&
             playerModel.currentState!= PlayerState.BigSkillStart&&
             playerModel.currentState != PlayerState.BigSkill)
         {
@@ -90,22 +93,25 @@ public class PlayerStateBase : StateBase
         if (playerController.inputSystem.Player.SwitchLast.triggered &&
             playerModel.currentState != PlayerState.BigSkillStart &&
             playerModel.currentState != PlayerState.BigSkill &&
+            playerModel.currentState != PlayerState.QuestStart &&
             playerController.canEx == true)
         {
             //character switch
             playerController.SwitchLastExModel();
         }
         else if (playerController.inputSystem.Player.SwitchUp.triggered &&
-        playerModel.currentState != PlayerState.BigSkillStart &&
-        playerModel.currentState != PlayerState.BigSkill)
+            playerModel.currentState != PlayerState.BigSkillStart &&
+            playerModel.currentState != PlayerState.BigSkill &&
+            playerModel.currentState != PlayerState.QuestStart &&
+            playerModel.currentState == PlayerState.Hit)
         {
             //character switch
             playerController.SwitchLastSupportModel();
         }
         else if (playerController.inputSystem.Player.SwitchUp.triggered &&
-        playerModel.currentState != PlayerState.BigSkillStart &&
-        playerModel.currentState != PlayerState.BigSkill &&
-            playerModel.currentState == PlayerState.Hit)
+            playerModel.currentState != PlayerState.QuestStart &&
+            playerModel.currentState != PlayerState.BigSkillStart &&
+            playerModel.currentState != PlayerState.BigSkill)
         {
             //character switch
             playerController.SwitchLastModel();

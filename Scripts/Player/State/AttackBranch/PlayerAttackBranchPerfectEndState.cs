@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// Attack branch end state
-public class PlayerAttackBranchEndState : PlayerStateBase
+/// Attack branch end state for perfect combo
+public class PlayerAttackBranchPerfectEndState : PlayerStateBase
 {
     public override void Enter()
     {
@@ -16,13 +16,13 @@ public class PlayerAttackBranchEndState : PlayerStateBase
             playerModel.skiilConfig.HasComboed = true;
         }
         //attack afterswing animation
-        int successPlayed = playerController.PlayAnimation($"Attack_Branch_{playerModel.skiilConfig.currentNormalAttackIndex}_End", 0.0f);
+        int successPlayed = playerController.PlayAnimation($"Attack_Branch_{playerModel.skiilConfig.currentNormalAttackIndex}_Perfect_End", 0.0f);
         if (successPlayed < 0) //not found is -1
         {
             // reset combo
             playerModel.skiilConfig.currentNormalAttackIndex = 1;
 
-            playerController.PlayAnimation("Attack_Branch_0_End", 0.1f);
+            playerController.PlayAnimation("Attack_Branch_0_Perfect_End", 0.1f);
         }
     }
 

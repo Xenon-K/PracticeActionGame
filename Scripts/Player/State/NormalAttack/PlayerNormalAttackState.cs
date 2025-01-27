@@ -64,7 +64,7 @@ public class PlayerNormalAttackState : PlayerStateBase
         #endregion
 
         #region detect ult
-        if (playerController.inputSystem.Player.BigSkill.triggered)
+        if (playerController.inputSystem.Player.BigSkill.triggered && playerController.CheckUlt())
         {
             //cancel perfect combo
             playerModel.skiilConfig.isPerfect = false;
@@ -130,6 +130,7 @@ public class PlayerNormalAttackState : PlayerStateBase
             {
                 enemyStats.TakeDamage(playerController.playerStats.damage.GetValue());
                 enemyStats.TakeResistDamage(playerController.playerStats.resist_damage.GetValue());
+                playerController.playerStats.GainEnergy(2);
                 hitOnce = true;
                 //if it is a perfect branch attack or it is the last normal attack stage
                 if (playerModel.skiilConfig.isPerfect || playerModel.skiilConfig.currentNormalAttackIndex == playerModel.skiilConfig.normalAttackDamageMultiple.Length)
@@ -141,6 +142,8 @@ public class PlayerNormalAttackState : PlayerStateBase
                         playerController.canEx = true;
                         playerController.ApplyGlobalSlowMotion(3f);
                         playerController.BroadcastCurrentOrder();
+                        playerController.ChainUI();
+                        playerController.ChargeUlt(100);
                     }
                 }
                 Debug.Log("Player hit the enemy!");

@@ -4,26 +4,68 @@ public class CharacterStats : MonoBehaviour
 {
     public int maxHealth = 100;
     public int currentHealth { get; private set; }
+    public int maxEnergy = 100;
+    public int currentEnergy { get; private set; }
     public int maxResist = 50;
     public int currentResist { get; private set; }
 
     public Stat damage;
     public Stat resist_damage;
     public Stat defense;
+    public Stat instantUse;
+    public Stat constantUse;
 
     void Awake()
     {
         currentHealth = maxHealth;
         currentResist = maxResist;
+        currentEnergy = maxEnergy / 2;
+        Debug.Log($"{gameObject.name}, health = {currentHealth}");
     }
 
     void Update()
     {
-        //take damage logic
+        //debug testing
         if(Input.GetKeyDown(KeyCode.T))
         {
             TakeDamage(10);
         }
+        if (Input.GetKeyDown(KeyCode.P))
+        {
+            GainEnergy(100);
+        }
+    }
+
+    //use for off field energy gain and normal attack energy gain
+    public void GainEnergy(int energy)
+    {
+        currentEnergy += energy;
+
+        if (currentEnergy > maxEnergy)
+        {
+            currentEnergy = maxEnergy;
+        }
+    }
+
+    public bool useInstantSkill()
+    {
+        if (currentEnergy < instantUse.GetValue())
+        {
+            return false;//can not use this skill
+        }
+
+        currentEnergy -= instantUse.GetValue();
+        return true;
+    }
+
+    public bool useConstantSkill()
+    {
+        if (currentEnergy < constantUse.GetValue())
+        {
+            return false;//can not use this skill
+        }
+        currentEnergy -= constantUse.GetValue();
+        return true;
     }
 
     public void TakeDamage (int damage)

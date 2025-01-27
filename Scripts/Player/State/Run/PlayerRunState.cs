@@ -82,8 +82,15 @@ public class PlayerRunState : PlayerStateBase
         }
         #endregion
 
+        #region detect fightBackTime
+        if (playerModel.fightBack == true && statePlayTime > 0.5f)
+        {
+            playerModel.fightBack = false;
+        }
+        #endregion
+
         #region detect ult
-        if (playerController.inputSystem.Player.BigSkill.triggered)
+        if (playerController.inputSystem.Player.BigSkill.triggered && playerController.CheckUlt())
         {
             //ult state
             playerController.SwitchState(PlayerState.BigSkillStart);
@@ -94,6 +101,13 @@ public class PlayerRunState : PlayerStateBase
         #region detect attack
         if (playerController.inputSystem.Player.Fire.triggered)
         {
+            if (playerModel.fightBack == true)
+            {
+                //fight back state
+                playerController.SwitchState(PlayerState.AttackRush);
+                playerModel.fightBack = false;
+                return;
+            }
             //attack state
             playerController.SwitchState(PlayerState.NormalAttack);
             return;

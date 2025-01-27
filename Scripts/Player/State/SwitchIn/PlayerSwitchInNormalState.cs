@@ -18,7 +18,7 @@ public class PlayerSwitchInNormalState : PlayerStateBase
         base.Update();
 
         #region detect ult
-        if (playerController.inputSystem.Player.BigSkill.triggered)
+        if (playerController.inputSystem.Player.BigSkill.triggered && playerController.CheckUlt())
         {
             //ult state
             playerController.SwitchState(PlayerState.BigSkillStart);

@@ -10,13 +10,13 @@ public class PlayerBigSkillTransitionState : PlayerStateBase
     public override void Enter()
     {
         base.Enter();
-
+        
         //switch camera
         playerModel.bigSkillShot.SetActive(false);
         CameraManager.INSTANCE.cm_brain.m_DefaultBlend = new CinemachineBlendDefinition(CinemachineBlendDefinition.Style.EaseInOut, 1f);
         CameraManager.INSTANCE.freeLookCanmera.SetActive(true);
         CameraManager.INSTANCE.ResetFreeLookCamera();
-
+        
         //afterswing
         playerController.PlayAnimation("BigSkillTransition", 0.0f);
     }
@@ -26,7 +26,7 @@ public class PlayerBigSkillTransitionState : PlayerStateBase
         base.Update();
 
         #region detect ult
-        if (playerController.inputSystem.Player.BigSkill.triggered)
+        if (playerController.inputSystem.Player.BigSkill.triggered && playerController.CheckUlt())
         {
             //ult state
             playerController.SwitchState(PlayerState.BigSkillStart);

@@ -8,18 +8,19 @@ public class PlayerSwitchInAttackExState : PlayerStateBase
     private bool hitOnce = false;
     public override void Enter()
     {
+        playerController.DisableChainUI();
         playerController.RestoreGlobalTimeScale();
         playerController.canEx = false;
         base.Enter();
-
-        playerController.PlayAnimation("SwitchIn_Attack_Ex", 0f);
         // Find the closest enemy within range
-        Transform closestEnemy = playerController.FindClosestEnemy(10f);//same as enemy see range
+        Transform closestEnemy = playerController.FindClosestEnemy(20f);//same as enemy see range
         if (closestEnemy != null)
         {
             //Debug.Log("See enemy: Branch");
             playerController.RotateTowards(closestEnemy);
         }
+
+        playerController.PlayAnimation("SwitchIn_Attack_Ex", 0f);
         // Enable attack collider at the start of the attack
         playerController.EnableAttackCollider();
     }
@@ -76,6 +77,7 @@ public class PlayerSwitchInAttackExState : PlayerStateBase
             {
                 enemyStats.TakeDamage(playerController.playerStats.damage.GetValue());
                 enemyStats.TakeResistDamage(playerController.playerStats.resist_damage.GetValue());
+                playerController.playerStats.GainEnergy(3);
                 hitOnce = true;
                 var enemyController = other.GetComponent<EnemyController>();
                 if (enemyController.exChance > 0)
@@ -84,6 +86,8 @@ public class PlayerSwitchInAttackExState : PlayerStateBase
                     playerController.canEx = true;
                     playerController.ApplyGlobalSlowMotion(3f);
                     playerController.BroadcastCurrentOrder();
+                    playerController.ChainUI();
+                    playerController.ChargeUlt(800);
                 }
                 Debug.Log("Player hit the enemy!");
             }

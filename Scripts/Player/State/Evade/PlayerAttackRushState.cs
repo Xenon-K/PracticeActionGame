@@ -57,7 +57,7 @@ public class PlayerAttackRushState : PlayerStateBase
         #endregion
 
         #region detect ult state
-        if (playerController.inputSystem.Player.BigSkill.triggered)
+        if (playerController.inputSystem.Player.BigSkill.triggered && playerController.CheckUlt())
         {
             //ult state
             playerController.SwitchState(PlayerState.BigSkillStart);
@@ -97,6 +97,8 @@ public class PlayerAttackRushState : PlayerStateBase
             {
                 enemyStats.TakeDamage(playerController.playerStats.damage.GetValue());
                 enemyStats.TakeResistDamage(playerController.playerStats.resist_damage.GetValue());
+                playerController.playerStats.GainEnergy(2);
+                playerController.ChargeUlt(100);
                 hitOnce = true;
                 Debug.Log("Player hit the enemy!");
             }

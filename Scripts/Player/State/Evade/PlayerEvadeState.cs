@@ -8,6 +8,7 @@ public class PlayerEvadeState : PlayerStateBase
 {
     public override void Enter()
     {
+        playerController.ChargeUlt(200);
         base.Enter();
 
         #region front or back evade
@@ -27,7 +28,7 @@ public class PlayerEvadeState : PlayerStateBase
         base.Update();
 
         #region detect ult state
-        if (playerController.inputSystem.Player.BigSkill.triggered)
+        if (playerController.inputSystem.Player.BigSkill.triggered && playerController.CheckUlt())
         {
             //ult state
             playerController.SwitchState(PlayerState.BigSkillStart);

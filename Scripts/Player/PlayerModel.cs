@@ -25,6 +25,8 @@ public class PlayerModel : MonoBehaviour
     public GameObject bigSkillStartShot;
     //ult shot
     public GameObject bigSkillShot;
+    //ult start shot
+    public GameObject QuestStartShot;
     //switch out timer
     private float animationTimer = 0f; // Tracks how long the animation has been playing
     // Prevent re-triggering exit logic

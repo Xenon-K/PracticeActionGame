@@ -74,6 +74,8 @@ public class PlayerSwitchInAttackState : PlayerStateBase
             {
                 enemyStats.TakeDamage(playerController.playerStats.damage.GetValue());
                 enemyStats.TakeResistDamage(playerController.playerStats.resist_damage.GetValue());
+                playerController.playerStats.GainEnergy(3);
+                playerController.ChargeUlt(200);
                 hitOnce = true;
                 Debug.Log("Player hit the enemy!");
             }

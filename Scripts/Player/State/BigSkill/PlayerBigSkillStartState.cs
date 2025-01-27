@@ -9,8 +9,9 @@ public class PlayerBigSkillStartState : PlayerStateBase
 {
     public override void Enter()
     {
+        playerController.UsedUlt();
         base.Enter();
-
+        playerController.shotPanel.StartAndEndScene();
         //switch camera
         CameraManager.INSTANCE.cm_brain.m_DefaultBlend = new CinemachineBlendDefinition(CinemachineBlendDefinition.Style.Cut, 0f);
         CameraManager.INSTANCE.freeLookCanmera.SetActive(false);

@@ -26,15 +26,18 @@ public class PlayerHitState : PlayerStateBase
         if (playerStats.currentResist > playerStats.maxResist * 0.5f) 
         {
             animationName = animationName + "_L";
+            playerController.ChargeUlt(-200);
         }
         else if(playerStats.currentResist > 0)
         {
             animationName = animationName + "_H";
+            playerController.ChargeUlt(-300);
         }
         else if(playerStats.currentResist <= 0)
         {
             playerStats.RestoreResist();
             animationName = animationName + "Fly";
+            playerController.ChargeUlt(-500);
         }
 
         if (dotProduct > 0.5f)//facing the enemy

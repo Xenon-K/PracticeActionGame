@@ -48,7 +48,7 @@ public class PlayerAttackBranchExplodeState : PlayerStateBase
         #endregion
 
         #region detect ult
-        if (playerController.inputSystem.Player.BigSkill.triggered)
+        if (playerController.inputSystem.Player.BigSkill.triggered && playerController.CheckUlt())
         {
             // reset combo
             playerModel.skiilConfig.currentNormalAttackIndex = 1;
@@ -62,7 +62,7 @@ public class PlayerAttackBranchExplodeState : PlayerStateBase
         if (IsAnimationEnd())
         {
             //end branch attack
-            playerController.SwitchState(PlayerState.Attack_Branch_End);
+            playerController.SwitchState(PlayerState.Attack_Branch_Perfect_End);
             return;
         }
         #endregion
@@ -96,6 +96,8 @@ public class PlayerAttackBranchExplodeState : PlayerStateBase
                     playerController.canEx = true;
                     playerController.ApplyGlobalSlowMotion(3f);
                     playerController.BroadcastCurrentOrder();
+                    playerController.ChainUI();
+                    playerController.ChargeUlt(300);
                 }
                 Debug.Log("Player hit the enemy!");
             }

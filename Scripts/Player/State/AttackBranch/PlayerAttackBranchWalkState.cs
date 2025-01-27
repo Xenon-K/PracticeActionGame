@@ -7,7 +7,7 @@ using UnityEngine;
 public class PlayerAttackBranchWalkState : PlayerStateBase
 {
     private bool isAttacking = false;
-
+    private bool hasEnergy = false;
     public override void Enter()
     {
         #region detect hit
@@ -20,6 +20,14 @@ public class PlayerAttackBranchWalkState : PlayerStateBase
         #endregion
 
         base.Enter();
+        //check if we can continue
+        hasEnergy = playerController.playerStats.useConstantSkill();
+        if (!hasEnergy)
+        {
+            //end branch attack
+            playerController.SwitchState(PlayerState.Attack_Branch_Explode);
+            return;
+        }
         //reset input buffer for continuous attack
         playerModel.skiilConfig.HoldingComboed = false;
 
@@ -80,7 +88,7 @@ public class PlayerAttackBranchWalkState : PlayerStateBase
         #endregion
 
         // Exit this state if the branch attack key is no longer held
-        if (!playerController.inputSystem.Player.AttackBranch.IsPressed() && !playerController.inputSystem.Player.AttackBranch.triggered)
+        if (!playerController.inputSystem.Player.AttackBranch.IsPressed() && !playerController.inputSystem.Player.AttackBranch.triggered || !hasEnergy)
         {
             //input buffer for continuous attack
             playerModel.skiilConfig.HoldingComboed = false;
@@ -90,7 +98,7 @@ public class PlayerAttackBranchWalkState : PlayerStateBase
         }
 
         #region detect ult
-        if (playerController.inputSystem.Player.BigSkill.triggered)
+        if (playerController.inputSystem.Player.BigSkill.triggered && playerController.CheckUlt())
         {
             // reset combo
             playerModel.skiilConfig.currentNormalAttackIndex = 1;
@@ -152,6 +160,8 @@ public class PlayerAttackBranchWalkState : PlayerStateBase
             {
                 enemyStats.TakeDamage(playerController.playerStats.damage.GetValue());
                 enemyStats.TakeResistDamage(playerController.playerStats.resist_damage.GetValue());
+                hasEnergy = playerController.playerStats.useConstantSkill();
+                playerController.ChargeUlt(100);
                 Debug.Log("Player hit the enemy!");
             }
 

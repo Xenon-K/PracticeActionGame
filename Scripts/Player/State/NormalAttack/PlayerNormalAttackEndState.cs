@@ -26,7 +26,7 @@ public class PlayerNormalAttackEndState : PlayerStateBase
         base.Update();
 
         #region detect ult
-        if (playerController.inputSystem.Player.BigSkill.triggered)
+        if (playerController.inputSystem.Player.BigSkill.triggered && playerController.CheckUlt())
         {
             //cancel perfect combo
             playerModel.skiilConfig.isPerfect = false;

@@ -8,11 +8,19 @@ public class PlayerAttackBranchState : PlayerStateBase
 {
     private bool isAttacking = false;
     private bool hitOnce = false;
+    private bool hasEnergy = false;
     public override void Enter()
     {
         base.Enter();
+        //check if can use perfect skill
+        hasEnergy = playerController.playerStats.useInstantSkill();
         //play attack animation
-        int successPlayed = playerController.PlayAnimation("Attack_Branch_" + playerModel.skiilConfig.currentNormalAttackIndex, 0.1f);
+        string moveName = "Attack_Branch_" + playerModel.skiilConfig.currentNormalAttackIndex;
+        if (hasEnergy) 
+        {
+            moveName += "_Perfect";
+        }
+        int successPlayed = playerController.PlayAnimation(moveName, 0.1f);
 
         // Find the closest enemy within range
         Transform closestEnemy = playerController.FindClosestEnemy(10f);//same as enemy see range
@@ -26,7 +34,14 @@ public class PlayerAttackBranchState : PlayerStateBase
         {
             // reset combo
             playerModel.skiilConfig.currentNormalAttackIndex = 1;
-            playerController.PlayAnimation("Attack_Branch_0", 0.1f);
+            if(hasEnergy)
+            {
+                playerController.PlayAnimation("Attack_Branch_0_Perfect", 0.1f);
+            }
+            else
+            {
+                playerController.PlayAnimation("Attack_Branch_0", 0.1f);
+            }
         }
         else
         {
@@ -66,7 +81,7 @@ public class PlayerAttackBranchState : PlayerStateBase
         #endregion
 
         #region detect ult
-        if (playerController.inputSystem.Player.BigSkill.triggered)
+        if (playerController.inputSystem.Player.BigSkill.triggered && playerController.CheckUlt())
         {
             //ult state
             playerController.SwitchState(PlayerState.BigSkillStart);
@@ -95,9 +110,27 @@ public class PlayerAttackBranchState : PlayerStateBase
                 return;
             }
             #endregion
-            //end branch attack
-            playerController.SwitchState(PlayerState.Attack_Branch_Loop);
-            return;
+            if(hasEnergy && (playerModel.animator.HasState(0, Animator.StringToHash($"Attack_Branch_{playerModel.skiilConfig.currentNormalAttackIndex}_Loop")) ||
+               playerModel.animator.HasState(0, Animator.StringToHash("Attack_Branch_0_Loop"))))
+            {
+                //detect charge attack
+                playerController.SwitchState(PlayerState.Attack_Branch_Loop);
+                return;
+            }
+            //detect end phase
+            else
+            {
+                if(hasEnergy)
+                {
+                    playerController.SwitchState(PlayerState.Attack_Branch_Perfect_End);
+                    return;
+                }
+                else
+                {
+                    playerController.SwitchState(PlayerState.Attack_Branch_End);
+                    return;
+                }
+            }
         }
         #endregion
     }
@@ -130,6 +163,8 @@ public class PlayerAttackBranchState : PlayerStateBase
                     playerController.canEx = true;
                     playerController.ApplyGlobalSlowMotion(3f);
                     playerController.BroadcastCurrentOrder();
+                    playerController.ChainUI();
+                    playerController.ChargeUlt(300);
                 }
                 Debug.Log("Player hit the enemy!");
             }

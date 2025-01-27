@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 /// <summary>
 /// gamer controller
@@ -17,11 +18,19 @@ public class PlayerController : SingleMomoBase<PlayerController>,IStateMachineOw
     //model rotation speed
     public float rotationSpeed = 8f;
 
+    //ult counter
+    public int ultCounter = 0;
+    //ult limit
+    public int maxUlt = 3000;
+
     //evade cooldown
     private float evadeTimer = 1;
 
     //evade count
     private int evadeCounter = 0;
+
+    //energyTimer
+    private float energyTimer = 0f;
 
     //state machine
     private StateMachine stateMachine;
@@ -53,6 +62,22 @@ public class PlayerController : SingleMomoBase<PlayerController>,IStateMachineOw
     //Ex mark
     public bool canEx = false;
 
+    //Health bar for character
+    public List<HealthBar> healthBar;
+
+    //chain attack ui
+    public SwitchEffect switchEffect;
+
+    //UI bottons
+    public ButtonEffect skillButton;
+    public ButtonEffect attackButton;
+    public ButtonEffect ultButton;
+    public ButtonEffect evadeButton;
+    public ButtonEffect switchButton;
+    public UltEffect ultEffect;
+    //final switch for ui
+    public ShotEffect shotPanel;
+
     protected override void Awake()
     {
         base.Awake();
@@ -68,7 +93,9 @@ public class PlayerController : SingleMomoBase<PlayerController>,IStateMachineOw
         {
             GameObject modle = Instantiate(playerConfig.models[i], transform);
             controllableModels.Add(modle.GetComponent<PlayerModel>());
+            controllableModels[i].gameObject.SetActive(true);
             controllableModels[i].gameObject.SetActive(false);
+            healthBar[i].gameObject.SetActive(false);
         }
         #endregion
 
@@ -81,10 +108,23 @@ public class PlayerController : SingleMomoBase<PlayerController>,IStateMachineOw
 
     private void Start()
     {
+        //if end the game with slow motion last time
+        RestoreGlobalTimeScale();
         //lock the mouse
         LockMouse();
         //switch to Idle
-        SwitchState(PlayerState.Idle);
+        SwitchState(PlayerState.QuestStart);
+        //shotPanel.StartAndEndScene();
+        #region initialize healthBar
+        for (int i = 0; i < playerConfig.models.Length; i++)
+        {
+            healthBar[i].gameObject.SetActive(true);
+            CharacterStats cs = controllableModels[i].GetComponent<CharacterStats>();
+            //update health bar
+            healthBar[i].SetHealth(cs.maxHealth);
+            healthBar[i].SetEnergy(cs.currentEnergy);
+        }
+        #endregion
     }
 
     private void OnTriggerStay(Collider other)
@@ -212,6 +252,9 @@ public class PlayerController : SingleMomoBase<PlayerController>,IStateMachineOw
             case PlayerState.Attack_Branch_End:
                 stateMachine.EnterState<PlayerAttackBranchEndState>();
                 break;
+            case PlayerState.Attack_Branch_Perfect_End:
+                stateMachine.EnterState<PlayerAttackBranchPerfectEndState>();
+                break;
             case PlayerState.Attack_Branch_Loop:
                 stateMachine.EnterState<PlayerAttackBranchLoopState>();
                 break;
@@ -246,6 +289,9 @@ public class PlayerController : SingleMomoBase<PlayerController>,IStateMachineOw
                 break;
             case PlayerState.SwitchInAttackExEnd:
                 stateMachine.EnterState<PlayerSwitchInAttackExEndState>();
+                break;
+            case PlayerState.QuestStart:
+                stateMachine.EnterState<PlayerQuestStartState>();
                 break;
         }
     }
@@ -476,7 +522,7 @@ public class PlayerController : SingleMomoBase<PlayerController>,IStateMachineOw
         if (!isShift)
         {
             // Calculate new position relative to the enemy
-            Transform closestEnemy = FindClosestEnemy(10f); // Assumes you have a function to find the closest enemy
+            Transform closestEnemy = FindClosestEnemy(20f); // Assumes you have a function to find the closest enemy
             if (closestEnemy != null)
             {
                 // Direction from enemy to player
@@ -728,7 +774,7 @@ public class PlayerController : SingleMomoBase<PlayerController>,IStateMachineOw
         playerModel = nextModel;
 
         // Calculate new position relative to the enemy
-        Transform closestEnemy = FindClosestEnemy(10f); // Assumes you have a function to find the closest enemy
+        Transform closestEnemy = FindClosestEnemy(20f); // Assumes you have a function to find the closest enemy
         if (closestEnemy != null)
         {
             // Direction from enemy to player
@@ -773,14 +819,123 @@ public class PlayerController : SingleMomoBase<PlayerController>,IStateMachineOw
 
     private void FixedUpdate()
     {
-        if(controllableCounter <= 0) 
+        //update player stats
+        playerStats = playerModel.GetComponent<CharacterStats>();
+
+        #region update ui bottons
+        if (Input.GetKeyDown(KeyCode.U))//for debug ult purpose
+        {
+            ChargeUlt(maxUlt);
+        }
+        ultEffect.SetPhase(ultCounter);//change the ult counter image
+        //ult
+        if (ultCounter == maxUlt)
+        {
+            ultButton.FullEnergyState();
+        }
+        else
+        {
+            ultButton.NormalState();
+        }
+        //skill
+        if(playerStats.currentEnergy >= playerStats.instantUse.GetValue())
+        {
+            skillButton.FullEnergyState();
+        }
+        else if (inputSystem.Player.AttackBranch.IsPressed())//pressed skill
+        {
+            skillButton.PressedButton();
+        }
+        else
+        {
+            skillButton.NormalState();
+        }
+        //attack
+        if (inputSystem.Player.Fire.IsPressed())//pressed normal attack
+        {
+            attackButton.PressedButton();
+        }
+        else
+        {
+            attackButton.NormalState();
+        }
+        //evade
+        if(evadeCounter == 2)//evade cooldown
+        {
+            evadeButton.EvadeCoolDownState((float)System.Math.Round(1f-evadeTimer, 1));
+        }
+        else if (inputSystem.Player.Evade.IsPressed())//evade is pressed
+        {
+            evadeButton.PressedButton();
+        }
+        else
+        {
+            evadeButton.NormalState();
+        }
+        //switchdown
+        if (checkNextModel())//if next model is not avaliable at the time
+        {
+            switchButton.FullEnergyState();
+        }
+        else if (inputSystem.Player.SwitchDown.IsPressed())//pressed switch
+        {
+            switchButton.PressedButton();
+        }
+        else
+        {
+            switchButton.NormalState();
+        }
+        #endregion
+
+        if (controllableCounter <= 0) 
         { 
             EndGame();
         }
         //update movement input
         inputMoveVec2 = inputSystem.Player.Move.ReadValue<Vector2>().normalized;
-        //update player stats
-        playerStats = playerModel.GetComponent<CharacterStats>();
+        
+        #region update game model health
+        for (int i = 0; i < playerConfig.models.Length; i++)
+        {
+            CharacterStats cs = controllableModels[i].GetComponent<CharacterStats>();
+            //update health bar
+            healthBar[i].SetHealth(cs.currentHealth);
+            //Debug.Log($"{cs.name}, health = {cs.currentHealth}");
+        }
+        #endregion
+
+        #region update game model energy
+        for (int i = 0; i < playerConfig.models.Length; i++)
+        {
+            CharacterStats cs = controllableModels[i].GetComponent<CharacterStats>();
+            //update energy bar
+            healthBar[i].SetEnergy(cs.currentEnergy);
+            //Debug.Log($"{cs.name}, health = {cs.currentHealth}");
+        }
+        #endregion
+
+        #region energy recharge
+        energyTimer += Time.deltaTime;
+        //off field energy charge
+        if (energyTimer >= 1f)
+        {
+            int last = findLastModel();
+            int next = findNextModel();
+            CharacterStats cs;
+            if (last != -1)
+            {
+                cs = controllableModels[last].GetComponent<CharacterStats>();
+                cs.GainEnergy(1);//gain one energy for off field
+            }
+            if (next != -1)
+            {
+                cs = controllableModels[next].GetComponent<CharacterStats>();
+                cs.GainEnergy(1);//gain one energy for off field
+            }
+            energyTimer = 0f;
+        }
+        #endregion
+
         //recover evade cooldown
         if (evadeTimer < 1f) //start the cooldown no matter which evade number is this
         {
@@ -825,7 +980,10 @@ public class PlayerController : SingleMomoBase<PlayerController>,IStateMachineOw
 
     public void EndGame()
     {
+        RestoreGlobalTimeScale();
         Debug.Log("Defeated, restart to retry");
+        UnlockMouse();
+        SceneManager.LoadScene("Menu");
     }
 
     // Enable attack collider (called by animation event)
@@ -912,6 +1070,8 @@ public class PlayerController : SingleMomoBase<PlayerController>,IStateMachineOw
         //Time.timeScale = originalTimeScale; // Restore the original time scale
         //Time.fixedDeltaTime = 0.02f; // Reset fixedDeltaTime
         // Restore time scale after the duration
+        canEx = false;
+        DisableChainUI();
         RestoreGlobalTimeScale();
     }
 
@@ -953,5 +1113,114 @@ public class PlayerController : SingleMomoBase<PlayerController>,IStateMachineOw
         Debug.Log($"[Broadcast Order] Current Character: {currentCharacter.name}, " +
                   $"Last Character: {lastCharacter.name}, " +
                   $"Next Character: {nextCharacter.name}");
+    }
+
+    //check if the next model is active or not
+    public bool checkNextModel()
+    {
+        int nextModelIndex = (currentModelIndex + 1) % playerConfig.models.Length;
+        //Debug.Log($"Current next character is {controllableModels[nextModelIndex]?.name}, Active: {controllableModels[nextModelIndex].gameObject.activeSelf}, Index : {nextModelIndex}");
+        //Debug.Log($"Current next character is {controllableModels[currentModelIndex]?.name}, Index : {currentModelIndex}");
+        if (controllableModels[nextModelIndex].gameObject.activeSelf)
+            return true; else return false;
+    }
+
+    //find the next inactive model
+    public int findNextModel()
+    {
+        int nextModelIndex = (currentModelIndex + 1) % playerConfig.models.Length;
+        if (controllableModels[nextModelIndex].gameObject.activeSelf)
+            return -1;
+        else return nextModelIndex;
+    }
+
+    //check if the last model is active or not
+    public bool checkLastModel()
+    {
+        int lastModelIndex = (currentModelIndex - 1);
+        if (lastModelIndex < 0)
+        {
+            lastModelIndex = playerConfig.models.Length - 1;
+        }
+        if (controllableModels[lastModelIndex].gameObject.activeSelf)
+            return true;
+        else return false;
+    }
+
+    //find the last inactive model
+    public int findLastModel()
+    {
+        int lastModelIndex = (currentModelIndex - 1);
+        if (lastModelIndex < 0)
+        {
+            lastModelIndex = playerConfig.models.Length - 1;
+        }
+        if (controllableModels[lastModelIndex].gameObject.activeSelf)
+            return -1;
+        else return lastModelIndex;
+    }
+
+    private void UnlockMouse()
+    {
+        //unlock the mouse
+        Cursor.lockState = CursorLockMode.None;
+        //visible
+        Cursor.visible = true;
+    }
+
+    //callChainAttackUI
+    public void ChainUI()
+    {
+        switchEffect.gameObject.SetActive(true);
+        switchEffect.UIPanel.SetActive(false);
+        int nextModelIndex = (currentModelIndex + 1) % playerConfig.models.Length;
+        int lastModelIndex = currentModelIndex - 1;
+        if(lastModelIndex < 0) 
+        { 
+            lastModelIndex = playerConfig.models.Length-1;
+        }
+        switchEffect.AssignBothImage(nextModelIndex, lastModelIndex, checkNextModel(), checkLastModel());
+    }
+
+    public void DisableChainUI()
+    {
+        switchEffect.UIPanel.SetActive(true);
+        switchEffect.gameObject.SetActive(false);
+    }
+
+    //allow enter switchInAttackEx doing external ways
+    public void EnterSwitchInAttackEx(EnemyController enemyController)
+    {
+        if (enemyController.exChance > 0)
+        {
+            enemyController.usedExChance();
+            canEx = true;
+            ApplyGlobalSlowMotion(3f);
+            BroadcastCurrentOrder();
+            ChainUI();
+        }
+    }
+
+    public void ChargeUlt(int charge)
+    {
+        if (ultCounter + charge > maxUlt)
+            ultCounter = maxUlt;
+        else if(ultCounter + charge <= 0)
+            ultCounter = 0;
+        else
+            ultCounter += charge;
+    }
+
+    public bool CheckUlt()
+    {
+        if (ultCounter == maxUlt)
+            return true;
+        else
+            return false;
+    }
+
+    public void UsedUlt()
+    {
+        ultCounter = 0;
     }
 }
