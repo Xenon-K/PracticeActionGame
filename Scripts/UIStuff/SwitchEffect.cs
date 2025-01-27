@@ -12,13 +12,22 @@ public class SwitchEffect : MonoBehaviour
     public SwitchConfig config; // Reference to the ScriptableObject
     public GameObject UIPanel;
 
-    public void AssignBothImage(int left_index, int right_index, bool left_visibility, bool right_visibility)
+    public void AssignBothImage(int left_index, int right_index, bool left_visibility, bool right_visibility, bool leftCheck, bool rightCheck)
     {
         Left_Corss.SetActive(false);
         Right_Corss.SetActive(false);
+
         Left.sprite = config.models[left_index];
         Right.sprite = config.models[right_index];
-        if(left_visibility)
+        if (leftCheck)
+        {
+            Left_Corss.SetActive(true);
+        }
+        if(rightCheck)
+        {
+            Right_Corss.SetActive(true);
+        }
+        if (left_visibility)
         {
             Left_Corss.SetActive(true);
         }
