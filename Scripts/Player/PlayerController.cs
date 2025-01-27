@@ -1171,15 +1171,40 @@ public class PlayerController : SingleMomoBase<PlayerController>,IStateMachineOw
     //callChainAttackUI
     public void ChainUI()
     {
+        bool leftCheck = false;
+        bool rightCheck = false;
         switchEffect.gameObject.SetActive(true);
         switchEffect.UIPanel.SetActive(false);
         int nextModelIndex = (currentModelIndex + 1) % playerConfig.models.Length;
-        int lastModelIndex = currentModelIndex - 1;
-        if(lastModelIndex < 0) 
-        { 
-            lastModelIndex = playerConfig.models.Length-1;
+        CharacterStats cs = controllableModels[nextModelIndex].GetComponent<CharacterStats>();
+        if (cs.currentHealth <= 0)//if next character is defeated
+        {
+            Debug.Log("not next");
+            nextModelIndex = currentModelIndex;
         }
-        switchEffect.AssignBothImage(nextModelIndex, lastModelIndex, checkNextModel(), checkLastModel());
+        //check for last model index
+        int lastModelIndex = currentModelIndex - 1;
+        if (lastModelIndex < 0)
+        {
+            lastModelIndex = playerConfig.models.Length - 1;
+        }
+
+        //if last character is defeated
+        cs = controllableModels[lastModelIndex].GetComponent<CharacterStats>();
+        if (cs.currentHealth <= 0)
+        {
+            Debug.Log("not last");
+            lastModelIndex = currentModelIndex;
+        }
+        if (nextModelIndex == currentModelIndex)
+        {
+            leftCheck = true;
+        }
+        if(lastModelIndex == currentModelIndex)
+        {
+            rightCheck = true;
+        }
+        switchEffect.AssignBothImage(nextModelIndex, lastModelIndex, checkNextModel(), checkLastModel(), leftCheck, rightCheck);
     }
 
     public void DisableChainUI()
