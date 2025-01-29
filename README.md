@@ -1,4 +1,7 @@
 # PracticeActionGame
+## (1/29/2025) V1.1
+## Optimized control for normal attack and attack rush(evade&fight back). Made Victory and defeated cut scene and loading screen. Although not really using it, the loading it's too fast. Music system upgrade. Added music for ending scene and implemented a music looping system. Code and Demonstration video will be uploaded later soemtimes. By this time, all promises I made have been complete.
+
 ## (1/26/2025 Again) Progress: The practice game is officially complete
 ### UI system added ultimate charge display and ultimate mode. Skill now add more moves for enegy cost version. Ultimate & Skill logic updated. Adding Enter Quest Camera shots. Added background music component. Level Selection UI is now moving instead of still.
 Final video:
@@ -34,7 +37,7 @@ Most of the time I spend in the last two days are dealing with the problem gener
 
 ## (12/28/2024) Progress:
 ### Added branch attacks, now can customize different combos for different characters. Team system is finally avaliable, switchIn, switchOut logic is fixed. Implemented input buffer for branch attack and branch normal attack for smoother transitions.
-Still need implementation(priority from high to low): Ult close up shot(done); holding down moves(done); Bullet system(done); Enemy(done); energy and ult calculation system(done); health & break system(done); switch in attack(done); apply all moves to all character in game(done); stage(done)/victory or loss scene(Skip, can not find satisfying art to support this scene, and replaced by switch back to the menu); (if I have enough time and energy for the following (tears)) attack special effects; render
+Still need implementation(priority from high to low): Ult close up shot(done); holding down moves(done); Bullet system(done); Enemy(done); energy and ult calculation system(done); health & break system(done); switch in attack(done); apply all moves to all character in game(done); stage(done)/victory or loss scene(done); (if I have enough time and energy for the following (tears)) attack special effects; render
 
 ## (12/26/2024) Progress:
 ### Connecting move sets, working on the state machine mech, fixed switchIn and switchOut logic and presentation, added switch character cool down
