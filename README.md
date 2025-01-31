@@ -1,6 +1,9 @@
 # PracticeActionGame
+## (1/30/2025) V1.2
+## Added two map for hard and normal level. Added a boss fight. Added new move sets for the old enemies. Optimized song loop system, minimized the switch song sound gap(when switch song, unity will pause your audio). Optimized evade and how other states switch to evade. Implemented hit lag. Fixed bug: Switch out a character just got defeated, without showing animation can result potential switch this character out again. Code and Demonstration video will be uploaded later soemtimes.
+
 ## (1/29/2025) V1.1
-## Optimized control for normal attack and attack rush(evade&fight back). Made Victory and defeated cut scene and loading screen. Although not really using it, the loading it's too fast. Music system upgrade. Added music for ending scene and implemented a music looping system. Code and Demonstration video will be uploaded later soemtimes. By this time, all promises I made have been complete.
+## Optimized control for normal attack and attack rush(evade&fight back). Made Victory and defeated cut scene and loading screen. Although not really using it, the loading it's too fast. Music system upgrade. Added music for ending scene and implemented a music looping system. By this time, all promises I made have been complete.
 
 ## (1/26/2025 Again) Progress: The practice game is officially complete
 ### UI system added ultimate charge display and ultimate mode. Skill now add more moves for enegy cost version. Ultimate & Skill logic updated. Adding Enter Quest Camera shots. Added background music component. Level Selection UI is now moving instead of still.
