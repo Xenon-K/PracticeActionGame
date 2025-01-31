@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class PlayerHitState : PlayerStateBase
 {
+    float hitTimer = 0f;
     public override void Enter()
     {
         base.Enter();
@@ -26,17 +27,20 @@ public class PlayerHitState : PlayerStateBase
         if (playerStats.currentResist > playerStats.maxResist * 0.5f) 
         {
             animationName = animationName + "_L";
+            hitTimer = 0.05f;
             playerController.ChargeUlt(-200);
         }
         else if(playerStats.currentResist > 0)
         {
             animationName = animationName + "_H";
+            hitTimer = 0.08f;
             playerController.ChargeUlt(-300);
         }
         else if(playerStats.currentResist <= 0)
         {
             playerStats.RestoreResist();
             animationName = animationName + "Fly";
+            hitTimer = 0.12f;
             playerController.ChargeUlt(-500);
         }
 
@@ -51,6 +55,7 @@ public class PlayerHitState : PlayerStateBase
         #endregion
         //Debug.Log(animationName);
         playerController.PlayAnimation(animationName, 0.25f);
+        playerController.ApplyHitLag(hitTimer);// hit lag
     }
 
     // Update is called once per frame

@@ -8,7 +8,6 @@ public class PlayerEvadeState : PlayerStateBase
 {
     public override void Enter()
     {
-        playerController.ChargeUlt(200);
         base.Enter();
 
         #region front or back evade

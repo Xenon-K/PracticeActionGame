@@ -104,6 +104,7 @@ public class PlayerAttackBranchExplodeState : PlayerStateBase
 
             // Prevent multiple damage triggers during the same attack
             isAttacking = false;
+            playerController.ApplyHitLag(0.1f); // hit lag
             playerController.DisableAttackCollider();
         }
     }

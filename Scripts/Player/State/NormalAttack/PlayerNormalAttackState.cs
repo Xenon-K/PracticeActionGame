@@ -76,6 +76,26 @@ public class PlayerNormalAttackState : PlayerStateBase
         }
         #endregion
 
+        #region detect evade
+        if (playerController.inputSystem.Player.Evade.triggered)
+        {
+            //cancel perfect combo
+            playerModel.skiilConfig.isPerfect = false;
+            //evade state
+            if (playerController.inputMoveVec2.y > 0)
+            {
+                playerController.SwitchState(PlayerState.Evade_Front);
+            }
+            else
+            {
+                playerController.SwitchState(PlayerState.Evade_Back);
+            }
+            // reset combo
+            playerModel.skiilConfig.currentNormalAttackIndex = 1;
+            return;
+        }
+        #endregion
+
         // detect combo
         if (NormalizedTime() >= 0.5f && playerController.inputSystem.Player.Fire.triggered) 
         {
@@ -146,6 +166,7 @@ public class PlayerNormalAttackState : PlayerStateBase
                         playerController.ChargeUlt(100);
                     }
                 }
+                playerController.ApplyHitLag(0.05f); // hit lag
                 Debug.Log("Player hit the enemy!");
             }
 

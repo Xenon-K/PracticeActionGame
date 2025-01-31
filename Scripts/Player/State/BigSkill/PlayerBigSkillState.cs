@@ -7,7 +7,9 @@ using UnityEngine;
 public class PlayerBigSkillState : PlayerStateBase
 {
     private bool isAttacking = false;
-    private bool hitOnce = false;
+    private int hitCounter = 0;
+    private float hitCoolDown = 0.3f;
+    private float lastHitTime;
 
     public override void Enter()
     {
@@ -19,6 +21,12 @@ public class PlayerBigSkillState : PlayerStateBase
 
         //afterswing
         playerController.PlayAnimation("BigSkill", 0.0f);
+        // Find the closest enemy within range
+        Transform closestEnemy = playerController.FindClosestEnemy(10f);//same as enemy see range
+        if (closestEnemy != null)
+        {
+            playerController.RotateTowards(closestEnemy);
+        }
         // Enable attack collider at the start of the attack
         playerController.EnableAttackCollider();
     }
@@ -27,8 +35,15 @@ public class PlayerBigSkillState : PlayerStateBase
     {
         base.Update();
 
+        // Find the closest enemy within range
+        Transform closestEnemy = playerController.FindClosestEnemy(10f);//same as enemy see range
+        if (closestEnemy != null)
+        {
+            playerController.RotateTowards(closestEnemy);
+        }
+
         #region detect actual attack range
-        if (statePlayTime > 0.1f && statePlayTime < 2f)
+        if (statePlayTime > 0.1f && (Time.time - lastHitTime > hitCoolDown))
         {
             isAttacking = true;
         }
@@ -56,26 +71,24 @@ public class PlayerBigSkillState : PlayerStateBase
         //Debug.Log($"OnAttackHit triggered with {other.name} tagged as {other.tag}");
         //if (!isAttacking)
         //Debug.Log("is not attacking");
-        //if (hitOnce)
-        //Debug.Log("hit");
         //if (!other.CompareTag("Enemy"))
         //Debug.Log("not tag");
-        if (isAttacking && !hitOnce && other.CompareTag("Enemy"))
+        if (isAttacking && hitCounter < 5 && other.CompareTag("Enemy"))
         {
             //Debug.Log("Feel Enemy");
             // Detect if the enemy hit the player
             var enemyStats = other.GetComponent<CharacterStats>();
             if (enemyStats != null)
             {
-                enemyStats.TakeDamage(playerController.playerStats.damage.GetValue());
-                enemyStats.TakeResistDamage(playerController.playerStats.resist_damage.GetValue());
-                hitOnce = true;
+                enemyStats.TakeDamage(playerController.playerStats.damage.GetValue()*3);
+                enemyStats.TakeResistDamage(playerController.playerStats.resist_damage.GetValue()*3);
+                hitCounter++;
+                lastHitTime = Time.time;
                 Debug.Log("Player hit the enemy!");
             }
-
             // Prevent multiple damage triggers during the same attack
             isAttacking = false;
-            playerController.DisableAttackCollider();
+            playerController.ApplyHitLag(0.12f);// hit lag
         }
     }
 
@@ -86,7 +99,7 @@ public class PlayerBigSkillState : PlayerStateBase
         base.Exit();
 
         // Ensure the attack collider is disabled when exiting the state
-        hitOnce = false;
+        hitCounter = 0;
         playerController.DisableAttackCollider();
         isAttacking = false;
     }

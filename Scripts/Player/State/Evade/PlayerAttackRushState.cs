@@ -56,6 +56,26 @@ public class PlayerAttackRushState : PlayerStateBase
         }
         #endregion
 
+        #region detect evade
+        if (playerController.inputSystem.Player.Evade.triggered)
+        {
+            //cancel perfect combo
+            playerModel.skiilConfig.isPerfect = false;
+            //evade state
+            if (playerController.inputMoveVec2.y > 0)
+            {
+                playerController.SwitchState(PlayerState.Evade_Front);
+            }
+            else
+            {
+                playerController.SwitchState(PlayerState.Evade_Back);
+            }
+            // reset combo
+            playerModel.skiilConfig.currentNormalAttackIndex = 1;
+            return;
+        }
+        #endregion
+
         #region detect ult state
         if (playerController.inputSystem.Player.BigSkill.triggered && playerController.CheckUlt())
         {
@@ -98,13 +118,14 @@ public class PlayerAttackRushState : PlayerStateBase
                 enemyStats.TakeDamage(playerController.playerStats.damage.GetValue());
                 enemyStats.TakeResistDamage(playerController.playerStats.resist_damage.GetValue());
                 playerController.playerStats.GainEnergy(2);
-                playerController.ChargeUlt(100);
+                playerController.ChargeUlt(500);
                 hitOnce = true;
                 Debug.Log("Player hit the enemy!");
             }
 
             // Prevent multiple damage triggers during the same attack
             isAttacking = false;
+            playerController.ApplyHitLag(0.08f);// hit lag
             playerController.DisableAttackCollider();
         }
     }

@@ -167,6 +167,7 @@ public class PlayerAttackBranchWalkState : PlayerStateBase
 
             // Prevent multiple damage triggers during the same attack
             isAttacking = false;
+            playerController.ApplyHitLag(0.01f);// hit lag
             playerController.DisableAttackCollider();
         }
     }

@@ -39,7 +39,12 @@ public class EnemyController : SingleMonoBaseEnemy<EnemyController>, IStateMachi
 
     public int exChance = 0;//the chances of player can perform ex attack on this enemy
     public float exTimer = 0f;//ex attack timer
+    public int stopDistance = 2;//for enemy size difference
+    public int agentSpeed = 5;//for nav mesh agent
+    public int skillSet = 1;//special skills it has
 
+    private float energyTimer = 0f;
+    //
     protected override void Awake()
     {
         base.Awake();
@@ -59,14 +64,14 @@ public class EnemyController : SingleMonoBaseEnemy<EnemyController>, IStateMachi
 
         target = PlayerManager.instance.player.transform;
         agent = GetComponent<NavMeshAgent>();
-        agent.speed = 8;
-        agent.stoppingDistance = 2;
+        agent.speed = agentSpeed;
+        agent.stoppingDistance = stopDistance;
         animator = GetComponent<Animator>();
         playerController = FindObjectOfType<PlayerController>();
 
         originalAgentSpeed = agent.speed;
         originalAnimatorSpeed = animator.speed;
-
+        
         #region debug get player info section
         if (playerController != null)
         {
@@ -138,6 +143,9 @@ public class EnemyController : SingleMonoBaseEnemy<EnemyController>, IStateMachi
             case EnemyState.Stun_End:
                 stateMachine.EnterState<EnemyStunEndState>();
                 break;
+            case EnemyState.Skill:
+                stateMachine.EnterState<EnemySkillState>();
+                break;
         }
     }
 
@@ -148,6 +156,11 @@ public class EnemyController : SingleMonoBaseEnemy<EnemyController>, IStateMachi
         if (enemyModel.currentState == EnemyState.NormalAttack)
         {
             var normalAttackState = stateMachine.GetCurrentState<EnemyNormalAttackState>() as EnemyNormalAttackState;
+            normalAttackState?.OnAttackHit(other);
+        }
+        if (enemyModel.currentState == EnemyState.Skill)
+        {
+            var normalAttackState = stateMachine.GetCurrentState<EnemySkillState>() as EnemySkillState;
             normalAttackState?.OnAttackHit(other);
         }
     }
@@ -189,6 +202,16 @@ public class EnemyController : SingleMonoBaseEnemy<EnemyController>, IStateMachi
             target = PlayerManager.instance.player.transform;
             Debug.Log("EnemyController: Target successfully assigned during runtime.");
         }*/
+
+        #region energy recharge
+        energyTimer += Time.deltaTime;
+        //off field energy charge
+        if (energyTimer >= 1f)
+        {
+            enemyStats.GainEnergy(1);//gain one energy for enemy
+            energyTimer = 0f;
+        }
+        #endregion
 
         //if the list is empty
         if (playerModels == null || playerModels.Count == 0) return;
@@ -314,20 +337,92 @@ public class EnemyController : SingleMonoBaseEnemy<EnemyController>, IStateMachi
         SetTimeScale(1f); // Reset to normal speed
     }
 
+    /// <summary>
+    /// Freeze the enemy
+    /// <param name="duration">Duration of the slow motion effect in seconds.</param>
+    public void ApplyFreeze()
+    {
+        StartCoroutine(FreezeCoroutine());
+    }
+
+    private IEnumerator FreezeCoroutine()
+    {
+        SetTimeScale(0f); // Freeze
+        // **Optimized Input Handling**
+        yield return new WaitUntil(() => Input.GetMouseButtonDown(0));
+        SetTimeScale(1f); // Reset to normal speed
+    }
+
+    //used enter stun, give three exChances
     public void PlayerExChance()
     {
         exChance = 3;//three chances
     }
 
+    //using one ex attack
     public void usedExChance()
     {
         exChance--;//using one chance
         exTimer = 0f;
     }
 
+    //recover from stun
     public void restoreExChance()
     {
         exTimer = 0f;
         exChance = 0;
+    }
+
+    //stop the movement
+    public void ResetSpeed()
+    {
+        agent.speed = 0;
+    }
+    //start moving
+    public void SetSpeed()
+    {
+        agent.speed = agentSpeed;
+    }
+
+    //hard code the attack range for skill
+    public bool SkillRange(string animationName, float timePassed)
+    {
+        
+        if (animationName == "Skill1")
+        {
+            if (timePassed > 1.13f && timePassed < 1.8f)
+                return true;
+            if (timePassed > 2.2f && timePassed < 3.35f)
+                return true;
+            return false;
+        }
+        else if (animationName == "Skill2")
+        {
+            if (timePassed > 1.76f && timePassed < 2.05f)
+                return true;
+            if (timePassed > 2.68f && timePassed < 3.28f)
+                return true;
+            if (timePassed > 3.5f && timePassed < 4.65f)
+                return true;
+            return false;
+        }
+        else if (animationName == "Skill3")
+        {
+            if (timePassed > 1.41f && timePassed < 2.68f)
+                return true;
+            if (timePassed > 2.88f && timePassed < 3.21f)
+                return true;
+            return false;
+        }
+        return false;
+    }
+
+    public bool ObjectCheck()
+    {
+        if (gameObject.name == "Monster_CottusP1")
+        {
+            return true;
+        }
+        return false;
     }
 }

@@ -62,8 +62,19 @@ public class PlayerIdleState : PlayerStateBase
         #region detect evade
         if (playerController.inputSystem.Player.Evade.triggered)
         {
+            //cancel perfect combo
+            playerModel.skiilConfig.isPerfect = false;
             //evade state
-            playerController.SwitchState(PlayerState.Evade_Back);
+            if (playerController.inputMoveVec2.y > 0)
+            {
+                playerController.SwitchState(PlayerState.Evade_Front);
+            }
+            else
+            {
+                playerController.SwitchState(PlayerState.Evade_Back);
+            }
+            // reset combo
+            playerModel.skiilConfig.currentNormalAttackIndex = 1;
             return;
         }
         #endregion

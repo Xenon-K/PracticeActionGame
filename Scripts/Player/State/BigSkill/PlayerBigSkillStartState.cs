@@ -21,7 +21,7 @@ public class PlayerBigSkillStartState : PlayerStateBase
         Transform closestEnemy = playerController.FindClosestEnemy(10f);//same as enemy see range
         if (closestEnemy != null)
         {
-            Debug.Log("See enemy: Ult");
+            //Debug.Log("See enemy: Ult");
             playerController.RotateTowards(closestEnemy);
         }
 

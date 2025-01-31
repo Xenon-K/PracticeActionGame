@@ -1,12 +1,19 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class EnemyManager : MonoBehaviour
 {
+    //end game flag
+    private bool EndGameChecked = false;
+    public SwitchEffect switchEffect;
+    public CutAway cutAway;
     //character list
     public List<EnemyController> controllableModels;
+    //for backgroudn musci switch
+    public BackgroundMusicManager bkmManager;
     // Start is called before the first frame update
     void Start()
     {
@@ -15,7 +22,7 @@ public class EnemyManager : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if(IsEndGame())
+        if(!EndGameChecked && IsEndGame())
         {
             EndGame();
             return;
@@ -30,13 +37,32 @@ public class EnemyManager : MonoBehaviour
             if (controllableModels[i].gameObject.activeSelf)//if there is still one enemy left
                 return false;
         }
+        EndGameChecked = true;
         return true;
     }
 
     //back to menu
     public void EndGame()
     {
-        Debug.Log("You Win!");
+        // Ensure WinScene is enabled
+        switchEffect.UIPanel.SetActive(false);
+        cutAway.ActivateWin();
+        bkmManager.PlayWinningMusic();
+        // click to continue
+        StartCoroutine(PlayVideoAndWaitForClick());
+    }
+
+    // Coroutine to play video and wait for player input
+    private IEnumerator PlayVideoAndWaitForClick()
+    {
+        // Ensure VideoPlayer is enabled and has time to initialize
+        yield return new WaitForEndOfFrame();
+
+        // **Optimized Input Handling**
+        yield return new WaitUntil(() => Input.GetMouseButtonDown(0));
+
+        yield return new WaitForSeconds(0.1f);
+
         UnlockMouse();
         SceneManager.LoadScene("Menu");
     }

@@ -153,8 +153,16 @@ public class PlayerAttackBranchState : PlayerStateBase
             var enemyStats = other.GetComponent<CharacterStats>();
             if (enemyStats != null)
             {
-                enemyStats.TakeDamage(playerController.playerStats.damage.GetValue());
-                enemyStats.TakeResistDamage(playerController.playerStats.resist_damage.GetValue());
+                if (hasEnergy)
+                {
+                    enemyStats.TakeDamage(playerController.playerStats.damage.GetValue()*2);
+                    enemyStats.TakeResistDamage(playerController.playerStats.resist_damage.GetValue()*2);
+                }
+                else
+                {
+                    enemyStats.TakeDamage(playerController.playerStats.damage.GetValue());
+                    enemyStats.TakeResistDamage(playerController.playerStats.resist_damage.GetValue());
+                }
                 hitOnce = true;
                 var enemyController = other.GetComponent<EnemyController>();
                 if (enemyController.exChance > 0)
@@ -170,6 +178,7 @@ public class PlayerAttackBranchState : PlayerStateBase
             }
             // Prevent multiple damage triggers during the same attack
             isAttacking = false;
+            playerController.ApplyHitLag(0.07f); // hit lag
             playerController.DisableAttackCollider();
         }
     }

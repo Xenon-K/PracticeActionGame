@@ -2,20 +2,27 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class EnemyNormalAttackState : EnemyStateBase
+public class EnemySkillState : EnemyStateBase
 {
     private bool isAttacking = false;
-    private bool hitOnce = false;
-
+    private float lastHitTime = 0f;
+    private float hitCoolDown = 0.5f;
+    private float animationDuration;
+    private string animationName;
     /// <summary>
     /// Called when the state is entered.
     public override void Enter()
     {
         base.Enter();
 
-        enemyController.Agent.ResetPath(); // Stop movement
+        // Generate a random index between 1 and 6
+        int randomIndex = UnityEngine.Random.Range(1, enemyController.skillSet+1);
 
-        enemyController.PlayAnimation("Normal_Attack", 0.25f);
+        // Construct the animation name
+        animationName = $"Skill{randomIndex}";
+
+        // Play the randomly selected animation
+        enemyController.PlayAnimation(animationName, 0.25f);
 
         // Enable attack collider at the start of the attack
         enemyController.EnableAttackCollider();
@@ -24,6 +31,8 @@ public class EnemyNormalAttackState : EnemyStateBase
     public override void Update()
     {
         base.Update();
+
+        animationDuration = enemyModel.animator.GetCurrentAnimatorStateInfo(0).length; // Get animation duration
 
         #region detect stun
         if (enemyController.enemyStats.currentResist <= 0)
@@ -44,14 +53,23 @@ public class EnemyNormalAttackState : EnemyStateBase
         #endregion
 
         #region detect actual attack range
-        if (statePlayTime > 1.3f && statePlayTime < 2f)
+        if(enemyController.ObjectCheck())
         {
-            isAttacking = true;
+            if (enemyController.SkillRange(animationName, statePlayTime) && (Time.time - lastHitTime > hitCoolDown))
+            {
+                isAttacking = true;
+            }
         }
-
-        if (statePlayTime >= 2f)
+        else
         {
-            isAttacking = false;
+            if (statePlayTime > 1.3f && (Time.time - lastHitTime > hitCoolDown))
+            {
+                isAttacking = true;
+            }
+            if(statePlayTime > animationDuration - 3f)
+            {
+                isAttacking = false;
+            }
         }
         #endregion
 
@@ -60,8 +78,8 @@ public class EnemyNormalAttackState : EnemyStateBase
         {
             // Back to idle
             enemyController.DisableAttackCollider();
-            hitOnce = false;
             isAttacking = false;
+            statePlayTime = 0;
             enemyController.SwitchState(EnemyState.Idle);
             return;
         }
@@ -72,14 +90,15 @@ public class EnemyNormalAttackState : EnemyStateBase
     public void OnAttackHit(Collider other)
     {
         //Debug.Log($"OnAttackHit triggered with {other.name} tagged as {other.tag}");
-        if (isAttacking && !hitOnce && other.CompareTag("Player"))// Detect if the enemy hit the player, and we only hit once
+        //Debug.Log($"OnAttackHit triggered with {hitCounter}");
+        if (isAttacking && other.CompareTag("Player"))// Detect if the enemy hit the player, and we only hit once
         {
             // Detect if the enemy hit the player
             var playerModelState = other.GetComponent<PlayerModel>();
             var playerStats = other.GetComponent<CharacterStats>();
             if (playerStats != null)
             {
-                if(playerModelState != null)
+                if (playerModelState != null)
                 {
                     // Check if the player is evading
                     if (playerModelState.currentState == PlayerState.Evade_Front || playerModelState.currentState == PlayerState.Evade_Back)
@@ -88,25 +107,25 @@ public class EnemyNormalAttackState : EnemyStateBase
                         // Trigger special effect for evade
                         TriggerEvadeEffect(playerModelState);
                     }
-                    else if (playerModelState.currentState == PlayerState.BigSkillStart || playerModelState.currentState == PlayerState.BigSkill || playerModelState.currentState == PlayerState.SwitchInAttack || playerModelState.currentState == PlayerState.SwitchInAttackEx || playerModelState.currentState == PlayerState.Hit)
+                    else if (playerModelState.currentState == PlayerState.BigSkillStart || playerModelState.currentState == PlayerState.BigSkill || playerModelState.currentState == PlayerState.SwitchInAttack || playerModelState.currentState == PlayerState.SwitchInAttackEx)
                     {
                         ;//can not get hit during ult or followUp attack
                     }
                     else
                     {
                         // If not evading, apply damage
-                        playerStats.TakeDamage(enemyController.enemyStats.damage.GetValue());
-                        playerStats.TakeResistDamage(enemyController.enemyStats.resist_damage.GetValue());
+                        playerStats.TakeDamage(enemyController.enemyStats.damage.GetValue()/3);
+                        playerStats.TakeResistDamage(enemyController.enemyStats.resist_damage.GetValue()/3);
                     }
+                    // **Update lastHitTime to enforce cooldown**
+                    lastHitTime = Time.time;
                     //playerStats.TakeDamage(enemyController.enemyStats.damage.GetValue());
-                    hitOnce = true;
+                    isAttacking = false;
                     //Debug.Log("Enemy hit the player!");
                 }
-                
+
             }
-            // Prevent multiple damage triggers during the same attack
-            isAttacking = false;
-            enemyController.DisableAttackCollider();
+            //enemyController.DisableAttackCollider();
         }
     }
 
@@ -129,7 +148,6 @@ public class EnemyNormalAttackState : EnemyStateBase
         base.Exit();
 
         // Ensure the attack collider is disabled when exiting the state
-        hitOnce = false;
         enemyController.DisableAttackCollider();
         isAttacking = false;
     }

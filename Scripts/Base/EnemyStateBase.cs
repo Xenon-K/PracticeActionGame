@@ -11,7 +11,8 @@ public enum EnemyState
     Death,
     Stun_Start,
     Stun_Loop,
-    Stun_End
+    Stun_End,
+    Skill
 }
 public class EnemyStateBase : StateBase
 {

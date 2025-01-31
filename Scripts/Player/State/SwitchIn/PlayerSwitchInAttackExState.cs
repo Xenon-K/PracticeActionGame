@@ -13,7 +13,7 @@ public class PlayerSwitchInAttackExState : PlayerStateBase
         playerController.canEx = false;
         base.Enter();
         // Find the closest enemy within range
-        Transform closestEnemy = playerController.FindClosestEnemy(20f);//same as enemy see range
+        Transform closestEnemy = playerController.FindClosestEnemy(50f);//same as enemy see range
         if (closestEnemy != null)
         {
             //Debug.Log("See enemy: Branch");
@@ -34,7 +34,7 @@ public class PlayerSwitchInAttackExState : PlayerStateBase
         {
             isAttacking = true;
 
-            Transform closestEnemy = playerController.FindClosestEnemy(10f);
+            Transform closestEnemy = playerController.FindClosestEnemy(50f);
             if (closestEnemy != null)
             {
                 playerController.RotateTowards(closestEnemy);

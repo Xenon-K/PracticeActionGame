@@ -53,7 +53,14 @@ public class EnemyWalkState : EnemyStateBase
                 // Close enough to stop moving
 
                 // Check if the enemy is facing the target
-                if (IsFacingTarget(target))
+                if(enemyController.enemyStats.useInstantSkill() && IsFacingTarget(target))
+                {
+                    enemyController.Agent.ResetPath(); // Stop movement
+                    // Switch to attack state when reaching the target and facing them
+                    enemyController.SwitchState(EnemyState.Skill);
+                    return;
+                }
+                else if (IsFacingTarget(target))
                 {
                     enemyController.Agent.ResetPath(); // Stop movement
                     // Switch to attack state when reaching the target and facing them

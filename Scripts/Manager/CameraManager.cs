@@ -22,4 +22,5 @@ public class CameraManager : SingleMomoBase<CameraManager>
         freeLook.m_YAxis.Value = 0.5f;
         freeLook.m_XAxis.Value = PlayerController.INSTANCE.playerModel.transform.eulerAngles.y;
     }
+
 }

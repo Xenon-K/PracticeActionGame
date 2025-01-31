@@ -16,7 +16,7 @@ public class PlayerController : SingleMomoBase<PlayerController>,IStateMachineOw
     public PlayerModel playerModel;
 
     //model rotation speed
-    public float rotationSpeed = 8f;
+    public float rotationSpeed = 20f;
 
     //ult counter
     public int ultCounter = 0;
@@ -77,6 +77,15 @@ public class PlayerController : SingleMomoBase<PlayerController>,IStateMachineOw
     public UltEffect ultEffect;
     //final switch for ui
     public ShotEffect shotPanel;
+    //for hit lag
+    private float originalFixedDeltaTime;
+    //for loading/winning/losing screen
+    public CutAway cutAway;
+    //for backgroudn musci switch
+    public BackgroundMusicManager bkmManager;
+
+    //end game flag
+    private bool isGameEnding = false; // Prevent multiple calls
 
     protected override void Awake()
     {
@@ -108,6 +117,8 @@ public class PlayerController : SingleMomoBase<PlayerController>,IStateMachineOw
 
     private void Start()
     {
+        // Store the original fixed delta time to restore it later
+        originalFixedDeltaTime = Time.fixedDeltaTime;
         //if end the game with slow motion last time
         RestoreGlobalTimeScale();
         //lock the mouse
@@ -887,8 +898,9 @@ public class PlayerController : SingleMomoBase<PlayerController>,IStateMachineOw
         }
         #endregion
 
-        if (controllableCounter <= 0) 
-        { 
+        if (controllableCounter <= 0 && !isGameEnding) 
+        {
+            isGameEnding = true; // Set flag to prevent multiple calls
             EndGame();
         }
         //update movement input
@@ -899,6 +911,8 @@ public class PlayerController : SingleMomoBase<PlayerController>,IStateMachineOw
         {
             CharacterStats cs = controllableModels[i].GetComponent<CharacterStats>();
             //update health bar
+            if (cs.currentHealth <= 0)
+                controllableModels[i].currentState = PlayerState.Death;
             healthBar[i].SetHealth(cs.currentHealth);
             //Debug.Log($"{cs.name}, health = {cs.currentHealth}");
         }
@@ -981,7 +995,28 @@ public class PlayerController : SingleMomoBase<PlayerController>,IStateMachineOw
     public void EndGame()
     {
         RestoreGlobalTimeScale();
-        Debug.Log("Defeated, restart to retry");
+        // Ensure LoseScene is enabled
+        switchEffect.UIPanel.SetActive(false);
+        cutAway.ActivateLose();
+        bkmManager.PlayLosingMusic();
+        //Debug.Log("Defeated, restart to retry");
+        // click to continue
+        StartCoroutine(PlayVideoAndWaitForClick());
+    }
+
+    // Coroutine to play video and wait for player input
+    private IEnumerator PlayVideoAndWaitForClick()
+    {
+        // Ensure VideoPlayer is enabled and has time to initialize
+        yield return new WaitForEndOfFrame();
+
+        // **Optimized Input Handling**
+        yield return new WaitUntil(() => Input.GetMouseButtonDown(0));
+
+        Debug.Log("Mouse clicked! Stopping video & switching to Menu...");
+
+        yield return new WaitForSeconds(0.1f);
+
         UnlockMouse();
         SceneManager.LoadScene("Menu");
     }
@@ -1091,6 +1126,27 @@ public class PlayerController : SingleMomoBase<PlayerController>,IStateMachineOw
         Time.fixedDeltaTime = 0.02f; // Restore fixedDeltaTime
     }
 
+    /// <summary>
+    /// Apply hit lag effect.
+    public void ApplyHitLag(float lagDuration)
+    {
+        StartCoroutine(HitLagCoroutine(lagDuration));
+    }
+
+    private IEnumerator HitLagCoroutine(float lagDuration)
+    {
+        // Slow down time
+        Time.timeScale = 0.1f; // Extremely slow (10% of normal speed)
+        Time.fixedDeltaTime = originalFixedDeltaTime * Time.timeScale;
+
+        // Wait for the duration of the lag
+        yield return new WaitForSecondsRealtime(lagDuration);
+
+        // Restore normal time scale
+        Time.timeScale = 1f;
+        Time.fixedDeltaTime = originalFixedDeltaTime;
+    }
+
     public void BroadcastCurrentOrder()
     {
         // Check if controllableModels has any characters
@@ -1179,7 +1235,7 @@ public class PlayerController : SingleMomoBase<PlayerController>,IStateMachineOw
         CharacterStats cs = controllableModels[nextModelIndex].GetComponent<CharacterStats>();
         if (cs.currentHealth <= 0)//if next character is defeated
         {
-            Debug.Log("not next");
+            //Debug.Log("not next");
             nextModelIndex = currentModelIndex;
         }
         //check for last model index
@@ -1193,7 +1249,7 @@ public class PlayerController : SingleMomoBase<PlayerController>,IStateMachineOw
         cs = controllableModels[lastModelIndex].GetComponent<CharacterStats>();
         if (cs.currentHealth <= 0)
         {
-            Debug.Log("not last");
+            //Debug.Log("not last");
             lastModelIndex = currentModelIndex;
         }
         if (nextModelIndex == currentModelIndex)
