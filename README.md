@@ -2,9 +2,9 @@
 ## (1/30/2025) V1.2
 ## Added two map for hard and normal level. Added a boss fight. Added new move sets for the old enemies. Optimized song loop system, minimized the switch song sound gap(when switch song, unity will pause your audio). Optimized evade and how other states switch to evade. Implemented hit lag. Fixed bug: Switch out a character just got defeated, without showing animation can result potential switch this character out again.
 ### V1.0 video gives a better understanding of the game mechanics, V1.2 video only covers the new content I added
-V1.0 video:
+### V1.0 video:
 https://drive.google.com/file/d/1yZVeE0uUKB52cUMcrlI2f3eHM45TXP9k/view?usp=sharing
-V1.2 changes: 
+### V1.2 changes: 
 https://drive.google.com/file/d/1fUa2CM6SdnZDZV73NE1R5F_amU_8Lght/view?usp=sharing
 
 ## (1/29/2025) V1.1
