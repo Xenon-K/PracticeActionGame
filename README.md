@@ -1,11 +1,14 @@
 # PracticeActionGame
-## (1/30/2025) V1.2
-## Added two map for hard and normal level. Added a boss fight. Added new move sets for the old enemies. Optimized song loop system, minimized the switch song sound gap(when switch song, unity will pause your audio). Optimized evade and how other states switch to evade. Implemented hit lag. Fixed bug: Switch out a character just got defeated, without showing animation can result potential switch this character out again.
+## (2/20/2025) V1.3
+## Optimized hit animation trigger method. Added Quest Start camera movement.
 ### V1.0 video gives a better understanding of the game mechanics, V1.2 video only covers the new content I added
 ### V1.0 video:
 https://drive.google.com/file/d/1yZVeE0uUKB52cUMcrlI2f3eHM45TXP9k/view?usp=sharing
 ### V1.2 changes: 
 https://drive.google.com/file/d/1fUa2CM6SdnZDZV73NE1R5F_amU_8Lght/view?usp=sharing
+
+## (1/30/2025) V1.2
+## Added two map for hard and normal level. Added a boss fight. Added new move sets for the old enemies. Optimized song loop system, minimized the switch song sound gap(when switch song, unity will pause your audio). Optimized evade and how other states switch to evade. Implemented hit lag. Fixed bug: Switch out a character just got defeated, without showing animation can result potential switch this character out again.
 
 ## (1/29/2025) V1.1
 ## Optimized control for normal attack and attack rush(evade&fight back). Made Victory and defeated cut scene and loading screen. Although not really using it, the loading it's too fast. Music system upgrade. Added music for ending scene and implemented a music looping system. By this time, all promises I made have been complete.
