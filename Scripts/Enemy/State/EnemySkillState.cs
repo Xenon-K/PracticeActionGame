@@ -89,46 +89,35 @@ public class EnemySkillState : EnemyStateBase
     /// Handle collision detection for dealing damage.
     public void OnAttackHit(Collider other)
     {
-        //Debug.Log($"OnAttackHit triggered with {other.name} tagged as {other.tag}");
-        //Debug.Log($"OnAttackHit triggered with {hitCounter}");
-        if (isAttacking && other.CompareTag("Player"))// Detect if the enemy hit the player, and we only hit once
+        if (isAttacking && other.CompareTag("Player"))
         {
-            // Detect if the enemy hit the player
             var playerModelState = other.GetComponent<PlayerModel>();
             var playerStats = other.GetComponent<CharacterStats>();
-            if (playerStats != null)
+            if (playerStats != null && playerModelState != null)
             {
-                if (playerModelState != null)
+                if (playerModelState.currentState == PlayerState.Evade_Front || playerModelState.currentState == PlayerState.Evade_Back)
                 {
-                    // Check if the player is evading
-                    if (playerModelState.currentState == PlayerState.Evade_Front || playerModelState.currentState == PlayerState.Evade_Back)
-                    {
-                        playerModelState.fightBack = true;
-                        // Trigger special effect for evade
-                        TriggerEvadeEffect(playerModelState);
-                    }
-                    else if (playerModelState.currentState == PlayerState.BigSkillStart || playerModelState.currentState == PlayerState.BigSkill || playerModelState.currentState == PlayerState.SwitchInAttack || playerModelState.currentState == PlayerState.SwitchInAttackEx)
-                    {
-                        ;//can not get hit during ult or followUp attack
-                    }
-                    else
-                    {
-                        // If not evading, apply damage
-                        playerStats.TakeDamage(enemyController.enemyStats.damage.GetValue()/3);
-                        playerStats.TakeResistDamage(enemyController.enemyStats.resist_damage.GetValue()/3);
-                    }
-                    // **Update lastHitTime to enforce cooldown**
-                    lastHitTime = Time.time;
-                    //playerStats.TakeDamage(enemyController.enemyStats.damage.GetValue());
-                    isAttacking = false;
-                    //Debug.Log("Enemy hit the player!");
+                    playerModelState.fightBack = true;
+                    TriggerEvadeEffect(playerModelState);
+                }
+                else if (playerModelState.currentState != PlayerState.BigSkillStart &&
+                         playerModelState.currentState != PlayerState.BigSkill &&
+                         playerModelState.currentState != PlayerState.SwitchInAttack &&
+                         playerModelState.currentState != PlayerState.SwitchInAttackEx)
+                {
+                    playerStats.TakeDamage(enemyController.enemyStats.damage.GetValue() / 3);
+                    playerStats.TakeResistDamage(enemyController.enemyStats.resist_damage.GetValue() / 3);
+                    enemyController.playerController.isHit = true;
+                    //var hitState = playerControllerState.stateMachine.GetCurrentState<PlayerHitState>() as PlayerHitState;
+                    //hitState?.OnHitAgain();
                 }
 
+                //enemyController.playerController.isHit = false;
+                lastHitTime = Time.time;
+                isAttacking = false;
             }
-            //enemyController.DisableAttackCollider();
         }
     }
-
 
     /// <summary>
     /// Trigger a special effect when the player is evading.

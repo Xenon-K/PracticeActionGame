@@ -5,70 +5,70 @@ using UnityEngine;
 public class PlayerHitState : PlayerStateBase
 {
     float hitTimer = 0f;
+    private string currentAnimation;
+    private float lastHitTime = 0f; // Add a timer
+
     public override void Enter()
     {
         base.Enter();
+        PlayHitAnimation();
+    }
 
+    private void PlayHitAnimation()
+    {
         string animationName = "Hit";
 
-        #region set hit animation
-        //find out resist
         var playerStats = playerModel.GetComponent<CharacterStats>();
-
-        // Find the closest enemy within range
-        Transform closestEnemy = playerController.FindClosestEnemy(10f);//same as enemy see range
-
-        // Calculate the direction from the player to the enemy
+        Transform closestEnemy = playerController.FindClosestEnemy(10f);
         Vector3 directionToEnemy = (closestEnemy.position - playerModel.transform.position).normalized;
-
-        // Check if the player is facing the enemy (using dot product)
         float dotProduct = Vector3.Dot(playerModel.transform.forward, directionToEnemy);
 
-        if (playerStats.currentResist > playerStats.maxResist * 0.5f) 
+        if (playerStats.currentResist > playerStats.maxResist * 0.5f)
         {
-            animationName = animationName + "_L";
+            animationName += "_L";
             hitTimer = 0.05f;
             playerController.ChargeUlt(-200);
         }
-        else if(playerStats.currentResist > 0)
+        else if (playerStats.currentResist > 0)
         {
-            animationName = animationName + "_H";
+            animationName += "_H";
             hitTimer = 0.08f;
             playerController.ChargeUlt(-300);
         }
-        else if(playerStats.currentResist <= 0)
+        else
         {
             playerStats.RestoreResist();
-            animationName = animationName + "Fly";
+            animationName += "Fly";
             hitTimer = 0.12f;
             playerController.ChargeUlt(-500);
         }
 
-        if (dotProduct > 0.5f)//facing the enemy
-        {
-            animationName = animationName + "_Front";
-        }
-        else
-        {
-            animationName = animationName + "_Back";
-        }
-        #endregion
-        //Debug.Log(animationName);
+        animationName += (dotProduct > 0.5f) ? "_Front" : "_Back";
+
         playerController.PlayAnimation(animationName, 0.25f);
-        playerController.ApplyHitLag(hitTimer);// hit lag
+        currentAnimation = animationName;
+        playerController.ApplyHitLag(hitTimer);
+
+        lastHitTime = Time.time; // Update the last hit time each time an animation plays
     }
 
-    // Update is called once per frame
     public override void Update()
     {
         base.Update();
 
-        #region Whether the animation has finished playing
         if (IsAnimationEnd())
         {
             playerController.SwitchState(PlayerState.Idle);
             return;
         }
-        #endregion
+    }
+
+    public void OnHitAgain()
+    {
+        // Only allow re-trigger if at least a short duration has passed
+        if (Time.time - lastHitTime > 0.2f) // Adjust the threshold as needed
+        {
+            PlayHitAnimation(); // Restart animation when hit again
+        }
     }
 }

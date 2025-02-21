@@ -62,6 +62,15 @@ public class PlayerAttackBranchPerfectEndState : PlayerStateBase
         }
         #endregion
 
+        #region detect hit
+        if (playerModel.currentState == PlayerState.Hit)
+        {
+            //cancel looping state
+            playerController.SwitchState(PlayerState.Hit);
+            return;
+        }
+        #endregion
+
         #region detect attack branch
         if (playerController.inputSystem.Player.AttackBranch.triggered)
         {

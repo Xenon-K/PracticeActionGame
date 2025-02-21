@@ -33,7 +33,7 @@ public class PlayerController : SingleMomoBase<PlayerController>,IStateMachineOw
     private float energyTimer = 0f;
 
     //state machine
-    private StateMachine stateMachine;
+   private StateMachine stateMachine;
 
     //player config info
     public PlayerConfig playerConfig;
@@ -87,6 +87,8 @@ public class PlayerController : SingleMomoBase<PlayerController>,IStateMachineOw
     //end game flag
     private bool isGameEnding = false; // Prevent multiple calls
 
+    //hit flag
+    public bool isHit = false;
     protected override void Awake()
     {
         base.Awake();
@@ -830,7 +832,7 @@ public class PlayerController : SingleMomoBase<PlayerController>,IStateMachineOw
 
     private void FixedUpdate()
     {
-        //update player stats
+        //update player stat
         playerStats = playerModel.GetComponent<CharacterStats>();
 
         #region update ui bottons
@@ -961,12 +963,19 @@ public class PlayerController : SingleMomoBase<PlayerController>,IStateMachineOw
             }
         }
 
+        
         //check for hit animation
-        if (playerModel.currentState == PlayerState.Hit && playerStats.currentHealth > 0)
+        if (isHit && playerStats.currentHealth > 0)
         {
             //switch to Hit state
-            SwitchState(PlayerState.Hit);
+            //SwitchState(PlayerState.Hit);
+            //playerModel.currentState = PlayerState.Idle;
+            isHit = false;
+            var hitState = stateMachine.GetCurrentState<PlayerHitState>() as PlayerHitState;
+            hitState?.OnHitAgain();
         }
+        
+
         //check for health
         if(playerStats.currentHealth <= 0)
         {

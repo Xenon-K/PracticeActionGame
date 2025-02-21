@@ -88,7 +88,7 @@ public class EnemyNormalAttackState : EnemyStateBase
                         // Trigger special effect for evade
                         TriggerEvadeEffect(playerModelState);
                     }
-                    else if (playerModelState.currentState == PlayerState.BigSkillStart || playerModelState.currentState == PlayerState.BigSkill || playerModelState.currentState == PlayerState.SwitchInAttack || playerModelState.currentState == PlayerState.SwitchInAttackEx || playerModelState.currentState == PlayerState.Hit)
+                    else if (playerModelState.currentState == PlayerState.BigSkillStart || playerModelState.currentState == PlayerState.BigSkill || playerModelState.currentState == PlayerState.SwitchInAttack || playerModelState.currentState == PlayerState.SwitchInAttackEx)
                     {
                         ;//can not get hit during ult or followUp attack
                     }

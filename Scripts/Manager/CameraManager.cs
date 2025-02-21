@@ -14,6 +14,8 @@ public class CameraManager : SingleMomoBase<CameraManager>
     public GameObject freeLookCanmera;
     //FreeLockCamera components
     public CinemachineFreeLook freeLook;
+    //Quest start cam
+    public CinemachineVirtualCamera questStartCamera;
 
     /// <summary>
     /// reset FreeLockCamera view

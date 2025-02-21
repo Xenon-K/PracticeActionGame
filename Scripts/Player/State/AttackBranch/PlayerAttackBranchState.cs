@@ -89,6 +89,15 @@ public class PlayerAttackBranchState : PlayerStateBase
         }
         #endregion
 
+        #region detect hit
+        if (playerModel.currentState == PlayerState.Hit)
+        {
+            //cancel looping state
+            playerController.SwitchState(PlayerState.Hit);
+            return;
+        }
+        #endregion
+
         #region Whether the animation has finished playing
         if (IsAnimationEnd())
         {

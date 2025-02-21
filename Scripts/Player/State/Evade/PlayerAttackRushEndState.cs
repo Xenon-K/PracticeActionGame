@@ -35,6 +35,15 @@ public class PlayerAttackRushEndState : PlayerStateBase
         }
         #endregion
 
+        #region detect hit
+        if (playerModel.currentState == PlayerState.Hit)
+        {
+            //cancel looping state
+            playerController.SwitchState(PlayerState.Hit);
+            return;
+        }
+        #endregion
+
         #region detect attack
         if (playerController.inputSystem.Player.Fire.triggered)
         {

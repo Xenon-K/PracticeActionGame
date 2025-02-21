@@ -49,6 +49,15 @@ public class PlayerAttackBranchEndState : PlayerStateBase
         }
         #endregion
 
+        #region detect hit
+        if (playerModel.currentState == PlayerState.Hit)
+        {
+            //cancel looping state
+            playerController.SwitchState(PlayerState.Hit);
+            return;
+        }
+        #endregion
+
         #region detect ult
         if (playerController.inputSystem.Player.BigSkill.triggered && playerController.CheckUlt())
         {
