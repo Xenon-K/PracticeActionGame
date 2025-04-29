@@ -1,11 +1,16 @@
 # PracticeActionGame
-## (2/20/2025) V1.3
-## Optimized hit animation trigger method. Added Quest Start camera movement.
+## (4/29/2025) V2.0
+## Optimized state machine handle mechanism, so it's much more stable. Optimized Hit state handling method, so it's much simpler and easy to maintain. Added render pipeline. Added pause menu for redo a level or leave a level. Added sound effects to different types of attack.
+### Latest demo video with explanation of the code:
+https://drive.google.com/file/d/1E13CdY0jDeEVB3OpWFoQ1_GtMri7WFce/view?usp=sharing
 ### V1.0 video gives a better understanding of the game mechanics, V1.2 video only covers the new content I added
 ### V1.0 video:
 https://drive.google.com/file/d/1yZVeE0uUKB52cUMcrlI2f3eHM45TXP9k/view?usp=sharing
 ### V1.2 changes: 
 https://drive.google.com/file/d/1fUa2CM6SdnZDZV73NE1R5F_amU_8Lght/view?usp=sharing
+
+## (2/20/2025) V1.3
+## Optimized hit animation trigger method. Added Quest Start camera movement.
 
 ## (1/30/2025) V1.2
 ## Added two map for hard and normal level. Added a boss fight. Added new move sets for the old enemies. Optimized song loop system, minimized the switch song sound gap(when switch song, unity will pause your audio). Optimized evade and how other states switch to evade. Implemented hit lag. Fixed bug: Switch out a character just got defeated, without showing animation can result potential switch this character out again.
@@ -25,8 +30,6 @@ https://drive.google.com/file/d/1fUa2CM6SdnZDZV73NE1R5F_amU_8Lght/view?usp=shari
 ## (1/23/2025) Progress: milestone alpha test battle system complete
 ### Added quick assist, chain attack, evade&fight back, hit animation, fixed collision problem, Enemy break system, Enmy stun stages. Milestone 1 is complete
 ### Next step: UI and level design
-Milestone video:
-https://drive.google.com/file/d/1Yks92x1yNDO4xYVgBhUySJE_BEtRTHk6/view?usp=sharing
 
 ## (1/16/2025) Progress:
 ### Added Left foot right foot walking/running animation, the character will switch their leg even if the player is not doing a contant walking.
@@ -35,8 +38,6 @@ https://drive.google.com/file/d/1Yks92x1yNDO4xYVgBhUySJE_BEtRTHk6/view?usp=shari
 ## (1/2/2025) Progress:
 ### Added Enemy tracking for attacks. Added health and attack for all character and enemies.
 The project is going well, however, I have to pause the project for a while, but this is definitly not the final editing for this project.
-#### first demo video
-https://drive.google.com/file/d/1CZ1ZRrqqQdQ20PY6_k7W-DW-kvVPUykz/view?usp=sharing
 
 ## (12/31/2024) Progress:
 ### Happy New Year!!!
